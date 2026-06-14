@@ -14,6 +14,8 @@ global NeedsAlignment := true
 global WaitingForTasks := false
 global CameraChanged := false
 
+global SelectedPlot := 0
+
 global RobloxWindow
 global iniFile := A_ScriptDir "\config.ini"
 
@@ -40,6 +42,7 @@ IniRead, StopHotkey, %iniFile%, Settings, StopHotkey, F3
 
 IniRead, AutoHarvest, %iniFile%, Settings, AutoHarvest, 0
 IniRead, HarvestTime, %iniFile%, Settings, HarvestTime, 30
+IniRead, AutoPlant, %iniFile%, Settings, AutoPlant, 0
 IniRead, AutoSellPlants, %iniFile%, Settings, AutoSellPlants, 0
 
 IniRead, WaitForRestocks, %iniFile%, Settings, WaitForRestocks, 1
@@ -106,6 +109,7 @@ ClickRelative(relX, relY, coord := 0, noDelay := 0) {
         WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
         if !RobloxWindow {
             SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
             return
         }
     }
@@ -163,6 +167,7 @@ MouseMoveRelative(relX, relY, coord := 0, noDelay := 0, activate := 1) {
         WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
         if !RobloxWindow {
             SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
             return
         }
     }
@@ -564,6 +569,7 @@ PixelColorFound(color, x1, y1, x2, y2, variation := 0, scale := 1) {
         WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
         if !RobloxWindow {
             SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
             return
         }
     }
@@ -635,6 +641,7 @@ ImageDetect(imageName, x1, y1, x2, y2, variation = 0) {
         WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
         if !RobloxWindow {
             SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
             return
         }
     }
@@ -693,6 +700,7 @@ ImageDetectTransparent(imageName, x1, y1, x2, y2, variation = 0, absolute = 0) {
         WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
         if !RobloxWindow {
             SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
             return
         }
     }
@@ -840,7 +848,8 @@ BuyFromShop(shopName) {
 
     WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
     if !RobloxWindow {
-        MsgBox, Roblox window not found!
+        SetStatus("Roblox window not found!")
+        CheckRobloxStatusFunc()
         return
     }
 
@@ -924,7 +933,8 @@ BuyFromShop(shopName) {
     ; Confirm Roblox window still exists
     WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
     if !RobloxWindow {
-        MsgBox, Roblox window not found!
+        SetStatus("Roblox window not found!")
+        CheckRobloxStatusFunc()
         return
     }
 
@@ -965,7 +975,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.0"
+    currentVersion := "Release1.01"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1053,6 +1063,8 @@ MainLoop:
 
     global NeedsAlignment, WaitingForTasks, ERRORS, WaitForRestocks
 
+    CheckRobloxStatusFunc()
+
     WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
     if (RobloxWindow) {
         WinActivate, ahk_id %RobloxWindow%
@@ -1133,7 +1145,7 @@ MainGui:
     ; Buttons stacked vertically
     Gui, Add, Button, w180 h40 gShopsGui, Shops
     Gui, Add, Button, w180 h40 gSettingsGui, Settings
-    Gui, Add, Button, w180 h40 gMainLoop, Start (%StartHotkey%)
+    Gui, Add, Button, w180 h40 gStartHotkeyLabel, Start (%StartHotkey%)
 
     ; Show GUI
     Gui, Show, w200 h200, Scripter Macro
@@ -1260,6 +1272,14 @@ SettingsGui:
     Gui, Show, w300 h260, Settings
 return
 
+AutoPlantCheck:
+    GuiControlGet, AutoPlant
+    if (AutoPlant)
+        GuiControl, Show, AutoPlantSettingsBtn
+    else
+        GuiControl, Hide, AutoPlantSettingsBtn
+return
+
 InfoWaitForRestocks:
     MsgBox, Turning this setting on makes the macro wait until the shops restock before buying from then again. When this setting is off, the macro will just repeatedly loop through all shops you have selected.
 Return
@@ -1280,6 +1300,7 @@ SaveSettings:
     IniWrite, %UseEventLanterns%, config.ini, Settings, UseEventLanterns
     IniWrite, %AutoHarvest%, config.ini, Settings, AutoHarvest
     IniWrite, %HarvestTimeEdit%, config.ini, Settings, HarvestTime
+    IniWrite, %AutoPlant%, %iniFile%, Settings, AutoPlant
     IniWrite, %AutoSellPlants%, config.ini, Settings, AutoSellPlants
     IniWrite, %MoveSpeedEdit%, config.ini, Settings, MoveSpeed
     IniWrite, %GardenSize%, config.ini, Settings, GardenSize
@@ -1313,6 +1334,208 @@ HarvestCheck:
         GuiControl, Hide, HarvestEveryText2
     }
 Return
+
+OpenAutoPlantSettings:
+    Gosub, ShowAutoPlantGui
+return
+
+ShowAutoPlantGui:
+
+    Gui, AutoPlant:Destroy
+    Gui, AutoPlant:New,, Auto Plant Settings
+
+    ; Plots
+
+    Gui, AutoPlant:Add, Text, x80 y10, Garden Layout
+
+    PlotW := 65
+    PlotH := 25
+
+    PlotMap := [9,10,7,8,5,6,3,4,1,2]
+
+    Row := 0
+    Loop, 5
+    {
+        Y := 40 + (Row * 27)
+
+        LeftID  := PlotMap[Row*2 + 1]
+        RightID := PlotMap[Row*2 + 2]
+
+        Gui, AutoPlant:Add, Picture, x30 y%Y% w%PlotW% h%PlotH% gSelectPlot vPlot%LeftID%, Images\Plot.png
+        Gui, AutoPlant:Add, Picture, x140 y%Y% w%PlotW% h%PlotH% gSelectPlot vPlot%RightID%, Images\Plot.png
+
+        Row++
+    }
+
+    Gui, AutoPlant:Add, Text, x50 y180 w120 Center, Garden Entrance
+
+    ; Seeds
+
+    Gui, AutoPlant:Add, Text, x240 y10, Seeds
+
+    Gui, AutoPlant:Add, ListView, x240 y30 w200 h180 vSeedLV -Multi, Seeds will be planted in this order
+
+    Gui, AutoPlant:Add, Button, x240 y220 w45 h23 gAddSeed, Add
+    Gui, AutoPlant:Add, Button, x290 y220 w55 h23 gRemoveSeed, Remove
+    Gui, AutoPlant:Add, Button, x350 y220 w30 h23 gSeedUp, ^
+    Gui, AutoPlant:Add, Button, x385 y220 w30 h23 gSeedDown, v
+
+    Gui, AutoPlant:Add, Button, x200 y285 w60 h25 gDoneAutoPlant, Done
+
+    LoadAutoPlantSettings()
+
+    Gui, AutoPlant:Show, w460 h320
+return
+
+DoneAutoPlant:
+    Gosub, SaveAutoPlantSettings
+    Gui, AutoPlant:Destroy
+return
+
+SelectPlot: 
+    global SelectedPlot 
+    Ctrl := A_GuiControl 
+    StringTrimLeft, PlotNum, Ctrl, 4 ; reset previous selection 
+    if (SelectedPlot) 
+        GuiControl, AutoPlant:, Plot%SelectedPlot%, Images\Plot.png 
+        SelectedPlot := PlotNum ; set new selection image 
+        GuiControl, AutoPlant:, Plot%PlotNum%, Images\PlotSelected.png 
+        return
+
+SelectPlotManual(PlotNum := "")
+{
+    global SelectedPlot
+
+    ; If called from GUI click
+    if (PlotNum = "")
+    {
+        Ctrl := A_GuiControl
+        StringTrimLeft, PlotNum, Ctrl, 4
+    }
+
+    ; Safety: ignore invalid calls
+    if (PlotNum = "")
+        return
+
+    ; Reset previous selection (only ONE allowed)
+    if (SelectedPlot)
+        GuiControl, AutoPlant:, Plot%SelectedPlot%, Images\Plot.png
+
+    SelectedPlot := PlotNum
+
+    ; Set new selection image
+    GuiControl, AutoPlant:, Plot%PlotNum%, Images\PlotSelected.png
+}
+
+AddSeed:
+    InputBox, SeedName, Add Seed, Enter seed name:
+
+    if (ErrorLevel || SeedName = "")
+        return
+
+    Gui, AutoPlant:Default
+    LV_Add("", SeedName)
+return
+
+RemoveSeed:
+    Gui, AutoPlant:Default
+
+    Row := LV_GetNext()
+
+    if !Row
+        return
+
+    LV_Delete(Row)
+return
+
+SeedUp:
+    Gui, AutoPlant:Default
+
+    Row := LV_GetNext()
+
+    if (!Row || Row = 1)
+        return
+
+    LV_GetText(SeedName, Row)
+
+    LV_Delete(Row)
+    LV_Insert(Row - 1, "", SeedName)
+    LV_Modify(Row - 1, "Select Focus")
+
+return
+
+SeedDown:
+    Gui, AutoPlant:Default
+
+    Row := LV_GetNext()
+
+    if !Row
+        return
+
+    Count := LV_GetCount()
+
+    if (Row >= Count)
+        return
+
+    LV_GetText(SeedName, Row)
+
+    LV_Delete(Row)
+    LV_Insert(Row + 1, "", SeedName)
+    LV_Modify(Row + 1, "Select Focus")
+
+return
+
+SaveAutoPlantSettings:
+    global SelectedPlot
+
+    ; Save plots
+
+    IniWrite, %SelectedPlot%, %iniFile%, AutoPlant, SelectedPlot
+
+
+    ; Save seed list
+
+    Gui, AutoPlant:Default
+
+    SeedList := ""
+
+    Loop % LV_GetCount()
+    {
+        LV_GetText(SeedName, A_Index)
+
+        if (SeedList != "")
+            SeedList .= "|"
+
+        SeedList .= SeedName
+    }
+
+    IniWrite, %SeedList%, %iniFile%, AutoPlant, Seeds
+
+    Gui, AutoPlant:Destroy
+
+return
+
+LoadAutoPlantSettings()
+{
+    global iniFile
+
+    IniRead, SelectedPlot, %iniFile%, AutoPlant, SelectedPlot
+
+    IniRead, SeedList, %iniFile%, AutoPlant, Seeds,
+    if (ErrorLevel || SeedList = "ERROR")
+        SeedList := ""
+
+    Gui, AutoPlant:Default
+    LV_Delete()  ; important: clear old items
+
+    Loop, Parse, SeedList, |
+    {
+        if (A_LoopField != "")
+            LV_Add("", A_LoopField)
+    }
+
+    SelectPlotManual(SelectedPlot)
+}
 
 ; Closing GUI exits macro
 GuiClose:
@@ -1682,8 +1905,18 @@ GearShopLabel:
     ClickRelative(720, 120, 1)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
-    Sleep, 1000
-    Walk("d", 21)
+    Sleep, 2500
+    if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
+        SetStatus("Alignment Incorrect :(")
+        global NeedsAlignment := true
+        ClickRelative(1370, 240, 1)
+        Sleep, 1000
+        Walk("s", 12)
+        Send, {a}
+        Walk("a", 12)
+    } else {
+        Walk("d", 21)
+    }
     Send, {e}
     Sleep, 5000
     if PixelColorFound(0x00CAFF, 514, 200, 1420, 300, 10) {
@@ -1707,9 +1940,19 @@ PropsShopLabel:
     ClickRelative(720, 120, 1)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
-    Sleep, 1000
-    Walk("d", 21)
-    Walk("w", 21)
+    Sleep, 2500
+    if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
+        SetStatus("Alignment Incorrect :(")
+        global NeedsAlignment := true
+        ClickRelative(1370, 240, 1)
+        Sleep, 1000
+        Walk("s", 31)
+        Send, {a}
+        Walk("a", 9)
+    } else {
+        Walk("d", 21)
+        Walk("w", 21)
+    }
     Send, {e}
     Sleep, 5000
     if PixelColorFound(0xFF9FBA, 514, 200, 1420, 300, 10) {
@@ -1887,12 +2130,15 @@ AutoHarvestLabel:
     Walk("w", 13)
     Walk("d", 9)
     Harvest()
+    ClickRelative(1260, 380, 1)
 
     Walk("d", 21)
     Harvest()
+    ClickRelative(1260, 380, 1)
     
     Walk("d", 24)
     Harvest()
+    ClickRelative(1260, 380, 1)
 
     Walk("w", 12)
     Walk("a", 1)

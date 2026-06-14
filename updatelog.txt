@@ -1,1 +1,5 @@
-Version Release1.0
+Version Release1.01
+
+Bug Fixes:
+ - Fixed reconnect issues
+ - Fixed not closing fence skins during harvest
