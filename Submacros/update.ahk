@@ -8,7 +8,7 @@ newestTime := 0
 extractedDir := ""
 Loop, Files, %parentDir%\*.*, D
 {
-    if InStr(A_LoopFileName, "Scripter-Grow-A-Garden-Macro") {
+    if InStr(A_LoopFileName, "Scripter-Grow-A-Garden-2-Macro") {
         if (A_LoopFileTimeCreated > newestTime) {
             newestTime := A_LoopFileTimeCreated
             extractedDir := A_LoopFileFullPath

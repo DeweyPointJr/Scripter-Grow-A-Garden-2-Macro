@@ -1,4 +1,7 @@
-Version Release1.03
+Version Release1.04
+
+Additions:
+ - Added option to change fence X button position
 
 Bug Fixes:
- - Fixed pet menu opening
+ - Fixed auto update

@@ -26,6 +26,8 @@ global MapSide := ""
 global AutoHarvest
 global HarvestNow := false
 
+global ShouldHarvest := 1
+
 global WaitForRestocks
 
 global shopKeys := Object()
@@ -71,6 +73,12 @@ global backpackBtnY
 
 IniRead, backpackBtnX, %iniFile%, Settings, backpackBtnX, 296
 IniRead, backpackBtnY, %iniFile%, Settings, backpackBtnY, 53
+
+global fenceBtnX
+global fenceBtnY
+
+IniRead, fenceBtnX, %iniFile%, Settings, fenceBtnX, 1260
+IniRead, fenceBtnY, %iniFile%, Settings, fenceBtnY, 380
 
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
@@ -533,9 +541,77 @@ GoToGarden(click := false) {
 }
 
 Harvest() {
-    Walk("e", 5000, 1000, 0)
-    CloseRobuxPrompt()
-    Sleep, 500
+    global ShouldHarvest
+    if (ShouldHarvest) {
+        Walk("e", 5000, 1000, 0)
+        CloseRobuxPrompt()
+        /*if (InventoryFullDetected()) {
+            IniRead, AutoSellPlants, %iniFile%, Settings, AutoSellPlants, 0
+            if (AutoSellPlants) {
+                SetStatus("Inventory full: Selling plants")
+                Gosub, AutoAlignCameraLabel
+                Sleep, 500
+                Gosub, AutoSellPlantsLabel
+                Sleep, 2000
+                ; Rejoin to reset camera angle
+                ReconnectToGame()
+                Sleep, 5000
+                ; Path back to garden and resume
+                GoToGarden(1)
+                Sleep, 1000
+                SetStatus("Resuming harvesting...")
+            } else {
+                SetStatus("Inventory full")
+                ShouldHarvest := 0
+            }
+        }
+        */
+    }
+}
+
+InventoryFullDetected() {
+    imageName := "InventoryFull.png"
+
+    ; Ensure Roblox window geometry is available (ImageDetect expects X/Y/W/H)
+    global RobloxWindow
+    if !RobloxWindow || !WinExist("ahk_id " . RobloxWindow) {
+        WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
+        if !RobloxWindow {
+            return 0
+        }
+    }
+    WinGetPos, X, Y, W, H, ahk_id %RobloxWindow%
+
+    if (ImageDetect(imageName, 670, 240, 1250, 300, 80)) {
+        return 1
+    }
+    return 0
+}
+
+HandleInventoryFull() {
+    ; Returns: 0 = no event, 1 = stop harvesting (autosell disabled), 2 = handled (autosell done, rejoined)
+    if !(InventoryFullDetected())
+        return 0
+
+    IniRead, AutoSellPlants, %iniFile%, Settings, AutoSellPlants, 0
+    if (AutoSellPlants) {
+        SetStatus("Inventory full — AutoSell enabled. Selling and rejoining...")
+        Gosub, AutoAlignCameraLabel
+        Sleep, 500
+        Gosub, AutoSellPlantsLabel
+        Sleep, 2000
+        ReconnectToGame()
+        Sleep, 5000
+        GoToGarden(1)
+        Sleep, 1000
+        SetStatus("Resuming harvesting...")
+        return 2
+    } else {
+        SetStatus("Inventory full — AutoSell disabled. Stopping harvesting.")
+        AutoHarvest := 0
+        HarvestNow := false
+        return 1
+    }
 }
 
 CheckForPetsOpen() {
@@ -982,7 +1058,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.03"
+    currentVersion := "Release1.04"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1267,6 +1343,8 @@ SettingsGui:
     ; === Positioning Tab ===
     Gui, Tab, 4
     Gui, Add, Button, x20 y50 w100 h35 gSetBackpackPos, Set Backpack Button Position
+
+    Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
 
     ; === Reconnect Tab ===
     Gui, Tab, 5
@@ -1792,6 +1870,20 @@ SetBackpackPos:
     Gui, Show
 Return
 
+SetFencePos:
+    MsgBox, 64, Fence X Setup, Click where the X button in the fence skins menu is located.
+    Gui, Hide
+    ; Wait for left click
+    KeyWait, LButton, D
+    MouseGetPos, fenceBtnX, fenceBtnY
+    MsgBox, 64, Fence X Setup, Fence X button set at X %fenceBtnX% Y %fenceBtnY%
+
+    ; Save the location
+    IniWrite, %fenceBtnX%, %iniFile%, Settings, fenceBtnX
+    IniWrite, %fenceBtnY%, %iniFile%, Settings, fenceBtnY
+    Gui, Show
+Return
+
 ; Core labels
 CheckForNewTasks:
     FormatTime, curMin,, m
@@ -2029,7 +2121,7 @@ AutoAlignCameraLabel:
 Return
 
 AutoHarvestLabel:
-    global GardenSize, CameraChanged, MoveSpeed
+    global GardenSize, CameraChanged, MoveSpeed, fenceBtnX, fenceBtnY
 
     if (CameraChanged) {
         SetStatus("Reconnecting to Reset Camera")
@@ -2147,15 +2239,15 @@ AutoHarvestLabel:
     Walk("w", 13)
     Walk("d", 9)
     Harvest()
-    ClickRelative(1260, 380, 1)
+    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
 
     Walk("d", 21)
     Harvest()
-    ClickRelative(1260, 380, 1)
+    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
     
     Walk("d", 24)
     Harvest()
-    ClickRelative(1260, 380, 1)
+    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
 
     Walk("w", 12)
     Walk("a", 1)
