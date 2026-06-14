@@ -1,4 +1,4 @@
-Version Release1.01
+Version Release1.02
 
 Bug Fixes:
  - Fixed reconnect issues

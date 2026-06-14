@@ -347,7 +347,7 @@ CheckRobloxStatusFunc() {
 
     ; Check if Roblox is not open
     WinGetPos, X, Y, W, H, ahk_exe RobloxPlayerBeta.exe
-    if (ErrorLevel = 1) {
+    if !(WinExist("Roblox")) {
         ReconnectToGame()
         return
     }
@@ -975,7 +975,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.01"
+    currentVersion := "Release1.02"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
