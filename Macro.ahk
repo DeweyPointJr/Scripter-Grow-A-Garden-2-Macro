@@ -538,6 +538,13 @@ Harvest() {
     Sleep, 500
 }
 
+CheckForPetsOpen() {
+    if PixelColorFound(0xC7AA79, 10, 400, 430, 460, 10) {
+        ClickRelative(470, 560, 1)
+        Sleep, 1000
+    }
+}
+
 searchItem(search := "nil") {
     global backpackBtnX
     global backpackBtnY
@@ -917,7 +924,7 @@ BuyFromShop(shopName) {
                     qty := bought + 1
                     AddBoughtItem(item, qty)
                 }
-            }
+          }
         }
 
         Sleep, 150
@@ -975,7 +982,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.02"
+    currentVersion := "Release1.03"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1009,7 +1016,7 @@ CheckForUpdate() {
                 return
             }
 
-            whr2 := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            whr2 := ComObjCreate("WinHttp.WinHttpR  equest.5.1")
             whr2.Open("GET", downloadURL, false)
             whr2.Send()
             whr2.WaitForResponse()
@@ -1070,6 +1077,8 @@ MainLoop:
         WinActivate, ahk_id %RobloxWindow%
 
         ; Roblox is active. Start main macro actions.
+
+        CheckForPetsOpen()
 
         ; Check for reconnect
         global AutoReconnect
@@ -1186,7 +1195,7 @@ SettingsGui:
     Gui, New, +Resize, Settings
 
     ; Create tab control
-    Gui, Add, Tab2, x10 y10 w280 h200, General|Roblox|Hotkeys|Positioning|Reconnect
+    Gui, Add, Tab2, x10 y10 w280 h225, General|Roblox|Hotkeys|Positioning|Reconnect
 
     ; === General Tab ===
     Gui, Add, Text, x20 y50, Auto Align Camera:
@@ -1205,25 +1214,33 @@ SettingsGui:
 
     Gosub, HarvestCheck
 
-    Gui, Add, Text, x20 y100, Auto Sell Plants:
+    Gui, Add, Text, x20 y100, Auto Plant: (Will be added soon!)
+    ;Gui, Add, Checkbox, vAutoPlant gAutoPlantCheck x90 y100
+    ;GuiControl,, AutoPlant, %AutoPlant%
+
+    ;Gui, Add, Button, x120 y97 w60 h22 gOpenAutoPlantSettings Hidden vAutoPlantSettingsBtn, Settings
+
+    ;Gosub, AutoPlantCheck
+
+    Gui, Add, Text, x20 y125, Auto Sell Plants:
     IniRead, AutoSellPlants, config.ini, Settings, AutoSellPlants, 0
-    Gui, Add, Checkbox, vAutoSellPlants x120 y100
+    Gui, Add, Checkbox, vAutoSellPlants x120 y125
     GuiControl,, AutoSellPlants, %AutoSellPlants%
 
-    Gui, Add, Button, x20 y125 w18 h18 gInfoWaitForRestocks, ?
-    Gui, Add, Text, x40 y125, Wait For Restocks:
+    Gui, Add, Button, x20 y150 w18 h18 gInfoWaitForRestocks, ?
+    Gui, Add, Text, x40 y150, Wait For Restocks:
     IniRead, WaitForRestocks, config.ini, Settings, WaitForRestocks, 1
-    Gui, Add, Checkbox, vWaitForRestocks x140 y125
+    Gui, Add, Checkbox, vWaitForRestocks x140 y150
     GuiControl,, WaitForRestocks, %WaitForRestocks%
 
-    Gui, Add, Button, x20 y150 w18 h18 gInfoMoveSpeed, ?
-    Gui, Add, Text, x40 y150, Move Speed:
-    Gui, Add, Edit, vMoveSpeedEdit Number x115 y148 w100
+    Gui, Add, Button, x20 y175 w18 h18 gInfoMoveSpeed, ?
+    Gui, Add, Text, x40 y175, Move Speed:
+    Gui, Add, Edit, vMoveSpeedEdit Number x115 y173 w100
     GuiControl,, MoveSpeedEdit, %MoveSpeed%
 
-    Gui, Add, Button, x20 y175 w18 h18 gInfoGardenSize, ?
-    Gui, Add, Text, x40 y175, Garden Size:
-    Gui, Add, DropDownList, vGardenSize x105 y173 w35, 1|2|3|4|5
+    Gui, Add, Button, x20 y200 w18 h18 gInfoGardenSize, ?
+    Gui, Add, Text, x40 y200, Garden Size:
+    Gui, Add, DropDownList, vGardenSize x105 y198 w35, 1|2|3|4|5
     GuiControl, ChooseString, GardenSize, %GardenSize%
 
     ; === Roblox Tab ===
@@ -1267,9 +1284,9 @@ SettingsGui:
 
     ; === Save Button ===
     Gui, Tab  ; Ends tab section
-    Gui, Add, Button, gSaveSettings x100 y220 w100 h30, Save
+    Gui, Add, Button, gSaveSettings x100 y245 w100 h30, Save
 
-    Gui, Show, w300 h260, Settings
+    Gui, Show, w300 h285, Settings
 return
 
 AutoPlantCheck:

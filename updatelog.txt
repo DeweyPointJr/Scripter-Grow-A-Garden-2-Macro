@@ -1,5 +1,4 @@
-Version Release1.02
+Version Release1.03
 
 Bug Fixes:
- - Fixed reconnect issues
- - Fixed not closing fence skins during harvest
+ - Fixed pet menu opening
