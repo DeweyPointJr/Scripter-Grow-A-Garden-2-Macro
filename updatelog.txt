@@ -1,7 +1,12 @@
-Version Release1.04
+Version Release1.05:
 
 Additions:
- - Added option to change fence X button position
+ - Added "While You Were Away" summary on macro stop
+
+Changes:
+ - Auto align process is different now
+ - Auto harvest no longer reconnects
 
 Bug Fixes:
- - Fixed auto update
+ - Fixed not being to path to gear and props shops correctly
+ - (Hopefully) fixed reconnect issues

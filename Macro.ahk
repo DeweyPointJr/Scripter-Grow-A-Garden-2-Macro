@@ -4,6 +4,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ; GLOBAL VARIABLES
+global MacroStarted := false
 
 global TASKS := []
 
@@ -29,6 +30,8 @@ global HarvestNow := false
 global ShouldHarvest := 1
 
 global WaitForRestocks
+
+global InGarden := false
 
 global shopKeys := Object()
 shopKeys["Seeds"] := "Seed"
@@ -106,6 +109,7 @@ shopPrefixes["Props"]  := "Prop"
 ; FUNCTIONS
 ; --- Purchase reporting ---
 global BoughtList := {}
+global BoughtListAll := {}
 global lastReportHour := ""
 
 ClickRelative(relX, relY, coord := 0, noDelay := 0) {
@@ -461,9 +465,9 @@ ReconnectToGame() {
                 SetStatus("Successfully joined game!")
                 ClickRelative(0.5, 0.5)
                 Sleep, 5000
-                Click, {Down}
+                Click, {Left Down}
                 Sleep, 5000
-                Click, {Up}
+                Click, {Left Up}
                 global NeedsAlignment := true
                 global CameraChanged := false
                 break
@@ -536,7 +540,7 @@ GoToGarden(click := false) {
     if (click) {
         ClickRelative(970, 120, 1)
     } else {
-        UINavigation("UUUUUUUUUUUULLLLLLLLLLLLURRRRRE", 0, 1)
+        UINavigation("UUUUUUUUUUUULLLLLLLLLLLLUUUUUUUUUUUUUURRRRRE", 0, 1)
     }
 }
 
@@ -567,6 +571,94 @@ Harvest() {
         }
         */
     }
+}
+
+ClearHotbar() {
+    SetStatus("Clearing Hotbar")
+    global backpackBtnX, backpackBtnY
+
+    ClickRelative(0.5, 0.5)
+    Send, {``}
+
+    MouseMoveRelative(675, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(740, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(802, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+    
+    MouseMoveRelative(866, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(935, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(1000, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(1064, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(1130, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(1197, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
+
+    MouseMoveRelative(1259, 1000, 1)
+    Sleep, 100
+    Click, {Left Down}
+    Sleep, 100
+    MouseMoveRelative(968, 820, 1)
+    Sleep, 100
+    Click {Left Up}
 }
 
 InventoryFullDetected() {
@@ -996,9 +1088,15 @@ BuyFromShop(shopName) {
                     Tooltip, Bought %item% %bought%x
                 }
                 ; If purchases occurred, record them to the BoughtList
-                if (bought >= 0) {
-                    qty := bought + 1
+                if (bought > 0) {
+                    qty := bought
                     AddBoughtItem(item, qty)
+
+                    if (BoughtListAll.HasKey(item)) {
+                        BoughtListAll[item] += qty
+                    } else {
+                        BoughtListAll[item] := qty
+                    }
                 }
           }
         }
@@ -1011,7 +1109,6 @@ BuyFromShop(shopName) {
     Sleep, 1000 
     ClickRelative(1370, 240, 1)
     Sleep, 1000
-    GoToGarden()
 
     ; Confirm Roblox window still exists
     WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
@@ -1028,9 +1125,13 @@ BuyFromShop(shopName) {
 }
 
 Walk(direction, length, delay := 500, studs := 1) {
-    global MoveSpeed
+    global MoveSpeed, InGarden
+    actualMoveSpeed := MoveSpeed
+    if (InGarden) {
+        actualMoveSpeed += 10
+    }
     if (studs) {
-        holdDuration := (length/MoveSpeed)*1000
+        holdDuration := (length/actualMoveSpeed)*1000
         ;Send, {%direction%}
         Send, {%direction% down}
         Sleep, %holdDuration%
@@ -1042,6 +1143,122 @@ Walk(direction, length, delay := 500, studs := 1) {
         Sleep, %length%
         Send, {%direction% up}
         Sleep, %delay%
+    }
+}
+
+WalkToPlot(plot) {
+    global InGarden
+
+    GoToGarden(1)
+    
+    Sleep, 2500
+
+    if (plot = 1) {
+        Walk("w", 13)
+        Walk("a", 54)
+        Walk("w", 12)
+        Walk("d", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+    } else if (plot = 2) {
+        Walk("w", 13)
+        Walk("d", 54)
+        Walk("w", 12)
+        Walk("a", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+    } else if (plot = 3) {
+        Walk("w", 13)
+        Walk("a", 54)
+        Walk("w", 12)
+        Walk("d", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 17)
+    } else if (plot = 4) {
+        Walk("w", 13)
+        Walk("d", 54)
+        Walk("w", 12)
+        Walk("a", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 17)
+    } else if (plot = 5) {
+        Walk("w", 13)
+        Walk("a", 54)
+        Walk("w", 12)
+        Walk("d", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 34)
+    } else if (plot = 6) {
+        Walk("w", 13)
+        Walk("d", 54)
+        Walk("w", 12)
+        Walk("a", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 34)
+    } else if (plot = 7) {
+        Walk("w", 13)
+        Walk("a", 54)
+        Walk("w", 12)
+        Walk("d", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 51)
+    } else if (plot = 8) {
+        Walk("w", 13)
+        Walk("d", 54)
+        Walk("w", 12)
+        Walk("a", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 51)
+    } else if (plot = 9) {
+        Walk("w", 13)
+        Walk("a", 54)
+        Walk("w", 12)
+        Walk("d", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 68)
+    } else if (plot = 10) {
+        Walk("w", 13)
+        Walk("d", 54)
+        Walk("w", 12)
+        Walk("a", 1)
+
+        Sleep, 5000
+
+        InGarden := true
+
+        Walk("w", 68)
     }
 }
 
@@ -1058,7 +1275,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.04"
+    currentVersion := "Release1.05"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1173,10 +1390,7 @@ MainLoop:
             ERRORS := 0
         }
 
-        if NeedsAlignment {
-            NeedsAlignment := false
-            Gosub, AutoAlignCameraLabel
-        }
+        Gosub, AutoAlignCameraLabel
 
         if (AutoHarvest && HarvestNow) {
             Gosub, AutoHarvestLabel
@@ -1773,6 +1987,7 @@ Return
 
 ; Hotkey Labels
 StartHotkeyLabel() {
+    global MacroStarted := true
     global WaitForRestocks
 
     Gui, Submit
@@ -1852,6 +2067,27 @@ PauseHotkeyLabel() {
 }
 
 StopHotkeyLabel() {
+    ; While you were away
+    global MacroStarted
+    if (MacroStarted) {
+        global BoughtListAll
+
+        summary := "While you were away:`r`n`r`n"
+        wrote := 0
+        if IsObject(BoughtListAll) {
+            for item, qty in BoughtListAll {
+                summary .= "- " . item . " x" . qty . "`r`n"
+                wrote := 1
+            }
+        }
+
+        if (wrote = 0) {
+            summary := "No purchases while you were away"
+        }
+
+        MsgBox,, Scripter Macro, %summary%
+        
+    }
     Reload
 }
 
@@ -1959,7 +2195,7 @@ AddFiveMinuteTasks:
         }
     }
     if (anyPropsSelected) {
-        AddTask("PropsShoplabel")
+        AddTask("PropsShopLabel")
     }
     
 Return
@@ -2015,16 +2251,16 @@ GearShopLabel:
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
-    if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
-        SetStatus("Alignment Incorrect :(")
-        global NeedsAlignment := true
+    if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         ClickRelative(1370, 240, 1)
         Sleep, 1000
         Walk("s", 12)
         Send, {a}
         Walk("a", 12)
     } else {
-        Walk("d", 21)
+        SetStatus("Alignment Incorrect")
+        AddTask("GearShopLabel", 1)
+        return
     }
     Send, {e}
     Sleep, 5000
@@ -2050,17 +2286,17 @@ PropsShopLabel:
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
-    if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
-        SetStatus("Alignment Incorrect :(")
+    if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         global NeedsAlignment := true
         ClickRelative(1370, 240, 1)
         Sleep, 1000
-        Walk("s", 31)
+        Walk("s", 34)
         Send, {a}
         Walk("a", 9)
     } else {
-        Walk("d", 21)
-        Walk("w", 21)
+        SetStatus("Alignment Incorrect")
+        AddTask("PropsShopLabel", 1)
+        return
     }
     Send, {e}
     Sleep, 5000
@@ -2081,6 +2317,8 @@ PropsShopLabel:
 Return
 
 AutoAlignCameraLabel:
+    SetStatus("Aligning Camera")
+
     ; First zoom alignment
     Loop, 25 {
         Send, {WheelUp}
@@ -2093,29 +2331,23 @@ AutoAlignCameraLabel:
     }
     Sleep, 1000
 
-    ; Next, put the camera into a top-down view
-    ClickRelative(0.5, .4)
-    Sleep, 500
-    Click, Right, Down
-    Sleep, 250
-    ClickRelative(0.5, 0.8)
-    Sleep, 250
-    Click, Right, Up
-    Sleep, 1000
-
     ; Last align the camera through the shops
     IniRead, AutoAlignCamera, config.ini, Settings, AutoAlignCamera
     if (AutoAlignCamera) {
-        global CameraChanged := true
-        SetCameraMode(3)
-
-        ; Teleport to shops
-        UINavigation("UUUUUUUUUUUUUUUUUUULLLLLLLLLLLLLLLURRRRERRELLERRELLERRELLERRELLERRELLERRELLERRE")
-        Sleep, 1000
-        ; Chance camera back
-        SetCameraMode(1)
-
-        RotateCamera(6)
+        Loop, 50 {
+            ClickRelative(720, 120, 1)
+            Sleep, 1000
+            ClickRelative(938, 494, 1)
+            Sleep, 2500
+            if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
+                ClickRelative(1370, 240, 1)
+                SetStatus("Camera Aligned Correctly")
+                Sleep, 1000
+                break
+            } else {
+                RotateCamera(30)
+            }
+        } 
     }
 
 Return
@@ -2123,13 +2355,17 @@ Return
 AutoHarvestLabel:
     global GardenSize, CameraChanged, MoveSpeed, fenceBtnX, fenceBtnY
 
-    if (CameraChanged) {
-        SetStatus("Reconnecting to Reset Camera")
-        Sleep, 1000
-        ReconnectToGame()
+    ; Align camera
+    Loop, 50 {
+        GoToGarden(1)
+        if (PixelColorFound(0x0093CE, 1322, 431, 1437, 547, 25)) && (PixelColorFound(0x4A372C, 405, 394, 509, 425, 25)) {
+            SetStatus("Alignment Correct for Harvesting")
+            Sleep, 1000
+            break
+        } else {
+            RotateCamera(30)
+        }
     }
-
-    oldMoveSpeed := MoveSpeed
 
     SetStatus("Harvesting Plants")
 
@@ -2331,8 +2567,42 @@ AutoHarvestLabel:
     SetTimer, AutoHarvestTimer, % (AutoHarvest ? HarvestTime * 60000 : "Off")
 Return
 
+AutoPlantLabel:
+    global.SelectedPlot
+
+    if (CameraChanged) {
+        SetStatus("Reconnecting to Reset Camera")
+        Sleep, 1000
+        ReconnectToGame()
+    }
+
+    ClearHotbar()
+
+    SetStatus("Walking to plot " . %SelectedPlot%)
+
+    WalkToPlot(%SelectedPlot%)
+
+    Sleep, 1000
+
+    Loop, 7{
+        Send, {WheelDown}
+        Sleep, 30
+    }
+
+    ClickRelative(0.5, .4)
+    Sleep, 500
+    Click, Right, Down
+    Sleep, 250
+    ClickRelative(0.5, 0.8)
+    Sleep, 250
+    Click, Right, Up
+    Sleep, 1000
+
+    ; start at 1005, 340, move 15 pixels for next stud
+Return
+
 AutoSellPlantsLabel:
-    UINavigation("UUUUUUUUUUUUUUUUUUUUUUUULLLLLLLLLLLLLLLLLLLLLLURRRRRRE")
+    UINavigation("UUUUUUUUUUUUUUUUUUUUUUUULLLLLLLLLLLLLLLLLLLLLLUUUUUUUUUURRRRRRE")
     Sleep, 2500
     Send, {E}
     Sleep, 3000
@@ -2341,5 +2611,5 @@ AutoSellPlantsLabel:
 Return
 
 F6::
-Walk("d", 1000, 500, 0)
+WalkToPlot(1)
 Return
