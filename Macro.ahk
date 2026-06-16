@@ -89,7 +89,7 @@ global shopXBtnX
 global shopXBtnY
 
 IniRead, shopXBtnX, %iniFile%, Settings, shopXBtnX, 1370
-IniRead, shopYBtnY, %iniFile%, Settings, shopYBtnY, 240
+IniRead, shopXBtnY, %iniFile%, Settings, shopXBtnY, 240
 
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
@@ -1129,7 +1129,7 @@ BuyFromShop(shopName) {
     ; Exit shop
     UINavigation("", 1, 1)
     Sleep, 1000 
-    ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+    ClickRelative(shopXBtnX, shopXBtnY, 2)
     Sleep, 1000
 
     ; Confirm Roblox window still exists
@@ -1297,7 +1297,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.1"
+    currentVersion := "Release1.11"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -2268,7 +2268,7 @@ SeedShopLabel:
         BuyFromShop("Seeds")
         SetStatus("Seeds Completed")
         Sleep, 1000
-        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+        ClickRelative(shopXBtnX, shopXBtnY, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2288,7 +2288,7 @@ GearShopLabel:
     ClickRelative(0.5, 0.5)
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
-        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+        ClickRelative(shopXBtnX, shopXBtnY, 2)
         Sleep, 1000
         Walk("s", 12)
         Send, {a}
@@ -2306,7 +2306,7 @@ GearShopLabel:
         BuyFromShop("Gears")
         SetStatus("Gear Completed")
         Sleep, 1000
-        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+        ClickRelative(shopXBtnX, shopXBtnY, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2326,7 +2326,7 @@ PropsShopLabel:
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         global NeedsAlignment := true
-        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+        ClickRelative(shopXBtnX, shopXBtnY, 2)
         Sleep, 1000
         Walk("s", 34)
         Send, {a}
@@ -2344,7 +2344,7 @@ PropsShopLabel:
         BuyFromShop("Props")
         SetStatus("Props Completed")
         Sleep, 1000
-        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+        ClickRelative(shopXBtnX, shopXBtnY, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2355,9 +2355,15 @@ PropsShopLabel:
 Return
 
 AutoAlignCameraLabel:
-    SetStatus("Aligning Camera")
+    global shopXBtnX, shopXBtnY
 
-    ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+    SetStatus("Aligning Camera")
+    ClickRelative(shopXBtnX, shopXBtnY, 2)
+    Sleep, 1000
+
+    ClickRelative(720, 120, 1)
+
+    
     Sleep, 1000
 
     ; First zoom alignment
@@ -2381,7 +2387,7 @@ AutoAlignCameraLabel:
             ClickRelative(938, 494, 1)
             Sleep, 2500
             if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
-                ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+                ClickRelative(shopXBtnX, shopXBtnY, 2)
                 SetStatus("Camera Aligned Correctly")
                 Sleep, 1000
                 break
@@ -2691,5 +2697,8 @@ AutoSellPlantsLabel:
 Return
 
 F6::
-Gosub, AutoPlantLabel
+global shopXBtnX
+global shopXBtnY
+MsgBox, %shopXBtnX% y %shopXBtnY%
+ClickRelative(shopXBtnX, shopXBtnY, 2)
 Return
