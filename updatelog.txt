@@ -1,12 +1,4 @@
-Version Release1.05:
+Version Release1.1:
 
-Additions:
- - Added "While You Were Away" summary on macro stop
-
-Changes:
- - Auto align process is different now
- - Auto harvest no longer reconnects
-
-Bug Fixes:
- - Fixed not being to path to gear and props shops correctly
- - (Hopefully) fixed reconnect issues
+- Added Auto Plant!
+- Added option to change shop X button position

@@ -26,6 +26,7 @@ global MapSide := ""
 
 global AutoHarvest
 global HarvestNow := false
+global PlantNow := false
 
 global ShouldHarvest := 1
 
@@ -48,6 +49,7 @@ IniRead, StopHotkey, %iniFile%, Settings, StopHotkey, F3
 IniRead, AutoHarvest, %iniFile%, Settings, AutoHarvest, 0
 IniRead, HarvestTime, %iniFile%, Settings, HarvestTime, 30
 IniRead, AutoPlant, %iniFile%, Settings, AutoPlant, 0
+IniRead, AutoPlantTime, %iniFile%, Settings, AutoPlantTime, 120
 IniRead, AutoSellPlants, %iniFile%, Settings, AutoSellPlants, 0
 
 IniRead, WaitForRestocks, %iniFile%, Settings, WaitForRestocks, 1
@@ -82,6 +84,12 @@ global fenceBtnY
 
 IniRead, fenceBtnX, %iniFile%, Settings, fenceBtnX, 1260
 IniRead, fenceBtnY, %iniFile%, Settings, fenceBtnY, 380
+
+global shopXBtnX
+global shopXBtnY
+
+IniRead, shopXBtnX, %iniFile%, Settings, shopXBtnX, 1370
+IniRead, shopYBtnY, %iniFile%, Settings, shopYBtnY, 240
 
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
@@ -659,6 +667,9 @@ ClearHotbar() {
     MouseMoveRelative(968, 820, 1)
     Sleep, 100
     Click {Left Up}
+
+    Sleep, 500
+    Send, {``}
 }
 
 InventoryFullDetected() {
@@ -713,7 +724,7 @@ CheckForPetsOpen() {
     }
 }
 
-searchItem(search := "nil") {
+searchItem(search := "nil", seed := 0) {
     global backpackBtnX
     global backpackBtnY
 
@@ -721,8 +732,14 @@ searchItem(search := "nil") {
         return
     }
 
-    ClickRelative(%backpackBtnX%, %backpackBtnY%, 2)
+    Send, {``}
     Sleep, 1000
+
+    if (seed) {
+        ClickRelative(600, 680, 1)
+        Sleep, 1000
+    }
+
     ClickRelative(1180, 676, 1)
     Sleep, 1000
     ; Delete any existing text
@@ -732,6 +749,11 @@ searchItem(search := "nil") {
     Send, {Ctrl up}
     Sleep, 1000
     Send, %search%
+
+    ClickRelative(674, 717, 1)
+
+    Sleep, 1000
+    Send, {``}
 
 }
 PixelColorFound(color, x1, y1, x2, y2, variation := 0, scale := 1) {
@@ -1018,7 +1040,7 @@ AnyItemsSelected(shopName) {
 }
 
 BuyFromShop(shopName) {
-    global doubleScrolls, itemPositions, seeds, gears, iniFile, ahopa
+    global doubleScrolls, itemPositions, seeds, gears, iniFile, shops, shopXBtnX, shopXBtnY
     global RobloxWindow
 
     WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
@@ -1107,7 +1129,7 @@ BuyFromShop(shopName) {
     ; Exit shop
     UINavigation("", 1, 1)
     Sleep, 1000 
-    ClickRelative(1370, 240, 1)
+    ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
     Sleep, 1000
 
     ; Confirm Roblox window still exists
@@ -1275,7 +1297,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.05"
+    currentVersion := "Release1.1"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1397,6 +1419,11 @@ MainLoop:
             HarvestNow := false
         }
 
+        if (AutoPlant && PlantNow) {
+            Gosub, AutoPlantLabel
+            PlantNow := false
+        }
+
         if (TASKS.Length()) {
             WaitingForTasks := false
             NextTask := TASKS.RemoveAt(1)
@@ -1504,13 +1531,13 @@ SettingsGui:
 
     Gosub, HarvestCheck
 
-    Gui, Add, Text, x20 y100, Auto Plant: (Will be added soon!)
-    ;Gui, Add, Checkbox, vAutoPlant gAutoPlantCheck x90 y100
-    ;GuiControl,, AutoPlant, %AutoPlant%
+    Gui, Add, Text, x20 y100, Auto Plant:
+    Gui, Add, Checkbox, vAutoPlant gAutoPlantCheck x90 y100
+    GuiControl,, AutoPlant, %AutoPlant%
 
-    ;Gui, Add, Button, x120 y97 w60 h22 gOpenAutoPlantSettings Hidden vAutoPlantSettingsBtn, Settings
+    Gui, Add, Button, x120 y97 w60 h22 gOpenAutoPlantSettings Hidden vAutoPlantSettingsBtn, Settings
 
-    ;Gosub, AutoPlantCheck
+    Gosub, AutoPlantCheck
 
     Gui, Add, Text, x20 y125, Auto Sell Plants:
     IniRead, AutoSellPlants, config.ini, Settings, AutoSellPlants, 0
@@ -1559,6 +1586,8 @@ SettingsGui:
     Gui, Add, Button, x20 y50 w100 h35 gSetBackpackPos, Set Backpack Button Position
 
     Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
+
+    Gui, Add, Button, x20 y90 w100 h35 gSetShopXPos, Set Shop X Position
 
     ; === Reconnect Tab ===
     Gui, Tab, 5
@@ -1666,34 +1695,30 @@ ShowAutoPlantGui:
     Loop, 5
     {
         Y := 40 + (Row * 27)
+        textY := (Y+3)
 
         LeftID  := PlotMap[Row*2 + 1]
         RightID := PlotMap[Row*2 + 2]
 
         Gui, AutoPlant:Add, Picture, x30 y%Y% w%PlotW% h%PlotH% gSelectPlot vPlot%LeftID%, Images\Plot.png
+        Gui, AutoPlant:Add, Text, x30 y%textY% w%PlotW% h%PlotH% Center +BackgroundTrans vPlotSeedText%LeftID%,
         Gui, AutoPlant:Add, Picture, x140 y%Y% w%PlotW% h%PlotH% gSelectPlot vPlot%RightID%, Images\Plot.png
+        Gui, AutoPlant:Add, Text, x140 y%textY% w%PlotW% h%PlotH% Center +BackgroundTrans vPlotSeedText%RightID%,
 
         Row++
     }
 
     Gui, AutoPlant:Add, Text, x50 y180 w120 Center, Garden Entrance
 
-    ; Seeds
-
-    Gui, AutoPlant:Add, Text, x240 y10, Seeds
-
-    Gui, AutoPlant:Add, ListView, x240 y30 w200 h180 vSeedLV -Multi, Seeds will be planted in this order
-
-    Gui, AutoPlant:Add, Button, x240 y220 w45 h23 gAddSeed, Add
-    Gui, AutoPlant:Add, Button, x290 y220 w55 h23 gRemoveSeed, Remove
-    Gui, AutoPlant:Add, Button, x350 y220 w30 h23 gSeedUp, ^
-    Gui, AutoPlant:Add, Button, x385 y220 w30 h23 gSeedDown, v
-
-    Gui, AutoPlant:Add, Button, x200 y285 w60 h25 gDoneAutoPlant, Done
+    Gui, AutoPlant:Add, Text, x40 y200, Plant Every:
+    Gui, AutoPlant:Add, Edit, x100 y198 vAutoPlantTime w50, %AutoPlantTime%
+    Gui, AutoPlant:Add, Text, x155 y200, minutes
+    
+    Gui, AutoPlant:Add, Button, x90 y225 w60 h25 gDoneAutoPlant, Done
 
     LoadAutoPlantSettings()
 
-    Gui, AutoPlant:Show, w460 h320
+    Gui, AutoPlant:Show, w240 h270
 return
 
 DoneAutoPlant:
@@ -1701,124 +1726,18 @@ DoneAutoPlant:
     Gui, AutoPlant:Destroy
 return
 
-SelectPlot: 
-    global SelectedPlot 
-    Ctrl := A_GuiControl 
-    StringTrimLeft, PlotNum, Ctrl, 4 ; reset previous selection 
-    if (SelectedPlot) 
-        GuiControl, AutoPlant:, Plot%SelectedPlot%, Images\Plot.png 
-        SelectedPlot := PlotNum ; set new selection image 
-        GuiControl, AutoPlant:, Plot%PlotNum%, Images\PlotSelected.png 
-        return
-
-SelectPlotManual(PlotNum := "")
-{
-    global SelectedPlot
-
-    ; If called from GUI click
-    if (PlotNum = "")
-    {
-        Ctrl := A_GuiControl
-        StringTrimLeft, PlotNum, Ctrl, 4
-    }
-
-    ; Safety: ignore invalid calls
+SelectPlot:
+    Ctrl := A_GuiControl
+    StringTrimLeft, PlotNum, Ctrl, 4
     if (PlotNum = "")
         return
-
-    ; Reset previous selection (only ONE allowed)
-    if (SelectedPlot)
-        GuiControl, AutoPlant:, Plot%SelectedPlot%, Images\Plot.png
-
-    SelectedPlot := PlotNum
-
-    ; Set new selection image
-    GuiControl, AutoPlant:, Plot%PlotNum%, Images\PlotSelected.png
-}
-
-AddSeed:
-    InputBox, SeedName, Add Seed, Enter seed name:
-
-    if (ErrorLevel || SeedName = "")
-        return
-
-    Gui, AutoPlant:Default
-    LV_Add("", SeedName)
-return
-
-RemoveSeed:
-    Gui, AutoPlant:Default
-
-    Row := LV_GetNext()
-
-    if !Row
-        return
-
-    LV_Delete(Row)
-return
-
-SeedUp:
-    Gui, AutoPlant:Default
-
-    Row := LV_GetNext()
-
-    if (!Row || Row = 1)
-        return
-
-    LV_GetText(SeedName, Row)
-
-    LV_Delete(Row)
-    LV_Insert(Row - 1, "", SeedName)
-    LV_Modify(Row - 1, "Select Focus")
-
-return
-
-SeedDown:
-    Gui, AutoPlant:Default
-
-    Row := LV_GetNext()
-
-    if !Row
-        return
-
-    Count := LV_GetCount()
-
-    if (Row >= Count)
-        return
-
-    LV_GetText(SeedName, Row)
-
-    LV_Delete(Row)
-    LV_Insert(Row + 1, "", SeedName)
-    LV_Modify(Row + 1, "Select Focus")
-
+    Gosub, ShowPlotEditorLabel
 return
 
 SaveAutoPlantSettings:
     global SelectedPlot
 
-    ; Save plots
-
-    IniWrite, %SelectedPlot%, %iniFile%, AutoPlant, SelectedPlot
-
-
-    ; Save seed list
-
-    Gui, AutoPlant:Default
-
-    SeedList := ""
-
-    Loop % LV_GetCount()
-    {
-        LV_GetText(SeedName, A_Index)
-
-        if (SeedList != "")
-            SeedList .= "|"
-
-        SeedList .= SeedName
-    }
-
-    IniWrite, %SeedList%, %iniFile%, AutoPlant, Seeds
+    IniWrite, %AutoPlantTime%, %iniFile%, AutoPlant, AutoPlantTime
 
     Gui, AutoPlant:Destroy
 
@@ -1827,29 +1746,81 @@ return
 LoadAutoPlantSettings()
 {
     global iniFile
-
     IniRead, SelectedPlot, %iniFile%, AutoPlant, SelectedPlot
 
-    IniRead, SeedList, %iniFile%, AutoPlant, Seeds,
-    if (ErrorLevel || SeedList = "ERROR")
-        SeedList := ""
-
     Gui, AutoPlant:Default
-    LV_Delete()  ; important: clear old items
-
-    Loop, Parse, SeedList, |
-    {
-        if (A_LoopField != "")
-            LV_Add("", A_LoopField)
+    ; Load per-plot seeds (PlotSeed1..PlotSeed10) and set images
+    Loop, 10 {
+        IniRead, pseed, %iniFile%, AutoPlant, PlotSeed%A_Index%,
+        if (ErrorLevel)
+            pseed := ""
+        if (pseed = "ERROR")
+            pseed := ""
+        GuiControl,, PlotSeedText%A_Index%, %pseed%
+        if (Trim(pseed) != "") {
+            GuiControl, AutoPlant:, Plot%A_Index%, Images\PlotSelected.png
+        } else {
+            GuiControl, AutoPlant:, Plot%A_Index%, Images\Plot.png
+        }
     }
-
-    SelectPlotManual(SelectedPlot)
 }
 
 ; Closing GUI exits macro
 GuiClose:
     ExitApp
 Return
+
+; --- Plot editor dialog ---
+ShowPlotEditorLabel:
+    ; Uses PlotNum from caller (set in SelectPlot)
+    global PlotNum, iniFile
+    editingPlot := PlotNum
+    IniRead, curSeed, %iniFile%, AutoPlant, PlotSeed%editingPlot%,
+    if (ErrorLevel)
+        curSeed := ""
+
+    Gui, PlotEditor:Destroy
+    Gui, PlotEditor:New,, Plot Seed Editor
+    Gui, PlotEditor:Add, Text, x10 y10, Plot %editingPlot%
+    Gui, PlotEditor:Add, Edit, x10 y30 w260 vPlotSeedInput, %curSeed%
+    Gui, PlotEditor:Add, Button, x10 y60 w80 h25 gPlotEditorOK, OK
+    Gui, PlotEditor:Add, Button, x100 y60 w80 h25 gPlotEditorClear, Clear
+    Gui, PlotEditor:Add, Button, x190 y60 w80 h25 gPlotEditorCancel, Cancel
+    Gui, PlotEditor:Show,, Edit Plot %editingPlot%
+return
+
+PlotEditorOK:
+    Gui, PlotEditor:Submit, NoHide
+    global PlotSeedInput, editingPlot, iniFile
+    ; Write the value; use explicit empty-string expression when clearing
+    if (PlotSeedInput != "") {
+        IniWrite, %PlotSeedInput%, %iniFile%, AutoPlant, PlotSeed%editingPlot%
+    } else {
+        IniWrite, % "" , %iniFile%, AutoPlant, PlotSeed%editingPlot%
+    }
+    ; Update GUI text and image
+    Gui, AutoPlant:Default
+    GuiControl,, PlotSeedText%editingPlot%, %PlotSeedInput%
+    if (Trim(PlotSeedInput) != "")
+        GuiControl, AutoPlant:, Plot%editingPlot%, Images\PlotSelected.png
+    else
+        GuiControl, AutoPlant:, Plot%editingPlot%, Images\Plot.png
+
+    Gui, PlotEditor:Destroy
+return
+
+PlotEditorClear:
+    global editingPlot, iniFile
+    IniWrite, % "" , %iniFile%, AutoPlant, PlotSeed%editingPlot%
+    Gui, AutoPlant:Default
+    GuiControl,, PlotSeedText%editingPlot%,
+    GuiControl, AutoPlant:, Plot%editingPlot%, Images\Plot.png
+    Gui, PlotEditor:Destroy
+return
+
+PlotEditorCancel:
+    Gui, PlotEditor:Destroy
+return
 
 ; Gui labels
 DynamicDone:
@@ -2046,6 +2017,49 @@ StartHotkeyLabel() {
         SetTimer, AutoHarvestTimer, Off
     }
 
+    ; Start the auto-plant timer: align with last plant time so interval is preserved
+    if (AutoPlant) {
+        ; Read last plant wall-clock time (A_Now format)
+        IniRead, lastPlantStr, %iniFile%, AutoPlant, LastPlant, 0
+        desired := AutoPlantTime * 60000
+        if (lastPlantStr = "" || lastPlantStr = "0") {
+            ; No previous plant recorded: start fresh
+            SetTimer, AutoPlantTimer, % desired
+        } else {
+            ; Compute target time = lastPlant + AutoPlantTime minutes
+            target := lastPlantStr
+            EnvAdd, target, %AutoPlantTime%, minutes
+
+            ; If target already passed, plant now and schedule next full interval
+            if (A_Now >= target) {
+                PlantNow := true
+                SetTimer, AutoPlantTimer, % desired
+            } else {
+                ; Compute remaining seconds until target by stepping seconds (safe since interval is small)
+                cur := A_Now
+                secCount := 0
+                ; guard: don't loop more than desired/1000 + 10
+                maxSec := (desired // 1000) + 10
+                while (cur < target) {
+                    EnvAdd, cur, 1, seconds
+                    secCount += 1
+                    if (secCount > maxSec) {
+                        break
+                    }
+                }
+                remainingMs := secCount * 1000
+                if (remainingMs <= 0) {
+                    PlantNow := true
+                    SetTimer, AutoPlantTimer, % desired
+                } else {
+                    SetTimer, AutoPlantTimer, % remainingMs
+                }
+            }
+        }
+    } else {
+        SetTimer, AutoPlantTimer, Off
+    }
+
     ; Add tasks
     if WaitForRestocks {
         Gosub, AddOneMinuteTasks
@@ -2117,6 +2131,20 @@ SetFencePos:
     ; Save the location
     IniWrite, %fenceBtnX%, %iniFile%, Settings, fenceBtnX
     IniWrite, %fenceBtnY%, %iniFile%, Settings, fenceBtnY
+    Gui, Show
+Return
+
+SetShopXPos:
+    MsgBox, 64, Shop X Setup, Click where the X button in the shop menu is located.
+    Gui, Hide
+    ; Wait for left click
+    KeyWait, LButton, D
+    MouseGetPos, shopXBtnX, shopXBtnY
+    MsgBox, 64, Shop X Setup, Shop X button set at X %shopXBtnX% Y %shopXBtnY%
+
+    ; Save the location
+    IniWrite, %shopXBtnX%, %iniFile%, Settings, shopXBtnX
+    IniWrite, %shopXBtnY%, %iniFile%, Settings, shopXBtnY
     Gui, Show
 Return
 
@@ -2220,7 +2248,13 @@ AutoHarvestTimer:
     HarvestNow := true
 Return
 
+AutoPlantTimer:
+    PlantNow := true
+Return
+
 SeedShopLabel:
+    global shopXBtnX, shopXBtnY
+
     SetStatus("Buying Seeds")
     ClickRelative(720, 120, 1)
     Sleep, 1000
@@ -2234,7 +2268,7 @@ SeedShopLabel:
         BuyFromShop("Seeds")
         SetStatus("Seeds Completed")
         Sleep, 1000
-        ClickRelative(1370, 240, 1)
+        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2246,17 +2280,19 @@ Return
 
 
 GearShopLabel:
+    global shopXBtnX, shopXBtnY
+
     SetStatus("Buying Gears")
     ClickRelative(720, 120, 1)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
-        ClickRelative(1370, 240, 1)
+        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
         Sleep, 1000
         Walk("s", 12)
         Send, {a}
-        Walk("a", 12)
+        Walk("a", 15)
     } else {
         SetStatus("Alignment Incorrect")
         AddTask("GearShopLabel", 1)
@@ -2270,7 +2306,7 @@ GearShopLabel:
         BuyFromShop("Gears")
         SetStatus("Gear Completed")
         Sleep, 1000
-        ClickRelative(1370, 240, 1)
+        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2281,6 +2317,8 @@ GearShopLabel:
 Return
 
 PropsShopLabel:
+    global shopXBtnX, shopXBtnY
+
     SetStatus("Buying Props")
     ClickRelative(720, 120, 1)
     Sleep, 1000
@@ -2288,7 +2326,7 @@ PropsShopLabel:
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         global NeedsAlignment := true
-        ClickRelative(1370, 240, 1)
+        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
         Sleep, 1000
         Walk("s", 34)
         Send, {a}
@@ -2306,7 +2344,7 @@ PropsShopLabel:
         BuyFromShop("Props")
         SetStatus("Props Completed")
         Sleep, 1000
-        ClickRelative(1370, 240, 1)
+        ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2318,6 +2356,9 @@ Return
 
 AutoAlignCameraLabel:
     SetStatus("Aligning Camera")
+
+    ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
+    Sleep, 1000
 
     ; First zoom alignment
     Loop, 25 {
@@ -2340,7 +2381,7 @@ AutoAlignCameraLabel:
             ClickRelative(938, 494, 1)
             Sleep, 2500
             if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
-                ClickRelative(1370, 240, 1)
+                ClickRelative(%shopXBtnX%, %shopXBtnY%, 2)
                 SetStatus("Camera Aligned Correctly")
                 Sleep, 1000
                 break
@@ -2568,37 +2609,76 @@ AutoHarvestLabel:
 Return
 
 AutoPlantLabel:
-    global.SelectedPlot
-
-    if (CameraChanged) {
-        SetStatus("Reconnecting to Reset Camera")
-        Sleep, 1000
-        ReconnectToGame()
+    ; Align camera and prepare once before planting loop
+    Loop, 50 {
+        GoToGarden(1)
+        if (PixelColorFound(0x0093CE, 1322, 431, 1437, 547, 25)) && (PixelColorFound(0x4A372C, 405, 394, 509, 425, 25)) {
+            SetStatus("Alignment Correct for Planting")
+            Sleep, 1000
+            break
+        } else {
+            RotateCamera(30)
+        }
     }
 
     ClearHotbar()
 
-    SetStatus("Walking to plot " . %SelectedPlot%)
+    ; Loop through all plots and plant if a seed is assigned
+    Loop, 10 {
+        plotNum := A_Index
+        IniRead, Seed, %iniFile%, AutoPlant, PlotSeed%plotNum%, ""
+        if (ErrorLevel)
+            Seed := ""
+        ; skip plots with no seed
+        if (Trim(Seed) = "")
+            continue
 
-    WalkToPlot(%SelectedPlot%)
+        SelectedPlot := plotNum
 
-    Sleep, 1000
+        SetStatus("Walking to plot " . SelectedPlot)
+        WalkToPlot(SelectedPlot)
+        Sleep, 1000
 
-    Loop, 7{
-        Send, {WheelDown}
-        Sleep, 30
+        
+
+        ClickRelative(0.5, .4)
+        Sleep, 500
+        Click, Right, Down
+        Sleep, 250
+        ClickRelative(0.5, 0.8)
+        Sleep, 250
+        Click, Right, Up
+        Sleep, 1000
+
+        Loop, 7 {
+            Send, {WheelDown}
+            Sleep, 30
+        }
+
+        SetStatus("Searching for " . Seed)
+        searchItem(Seed)
+
+        ; start clicking grid positions (preserve original behavior)
+        row := 1
+        i := 1
+        Loop, 176 {
+            clickX := (1005 + (30*(i-1)))
+            clickY := (350 + (30*(row-1)))
+            ClickRelative(clickX, clickY, 2)
+            if (Mod(i, 22) = 0) {
+                row += 1
+                i := 0
+            }
+            i += 1
+        }
+        Sleep, 500
     }
 
-    ClickRelative(0.5, .4)
-    Sleep, 500
-    Click, Right, Down
-    Sleep, 250
-    ClickRelative(0.5, 0.8)
-    Sleep, 250
-    Click, Right, Up
-    Sleep, 1000
-
-    ; start at 1005, 340, move 15 pixels for next stud
+    ; Restart auto plant timer
+    ; Record last plant time (wall-clock in A_Now format)
+    IniWrite, %A_Now%, %iniFile%, AutoPlant, LastPlant
+    PlantNow := False
+    SetTimer, AutoPlantTimer, % (AutoPlant ? AutoPlantTime * 60000 : "Off")
 Return
 
 AutoSellPlantsLabel:
@@ -2611,5 +2691,5 @@ AutoSellPlantsLabel:
 Return
 
 F6::
-WalkToPlot(1)
+Gosub, AutoPlantLabel
 Return
