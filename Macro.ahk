@@ -93,10 +93,10 @@ IniRead, shopXBtnY, %iniFile%, Settings, shopXBtnY, 240
 
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
-                , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Moon Bloom", "Dragon's Breath"]
+                , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Dragon's Breath"]
 
-global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Lantern", "Shrink Mushroom", "Supersize Mushroom"
-                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Teleporter", "Wheelbarrow", "Super Watering Can", "Super Sprinkler"]
+global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Lantern", "Shrink Mushroom", "Supersize Mushroom"
+                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Teleporter", "Wheelbarrow", "Player Magnet", "Super Watering Can", "Super Sprinkler"]
 
 global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate", "Conveyor Crate", "Owner Door Crate"
                 , "Bear Trap Crate", "Fence Crate", "Teleporter Pad Crate"]
@@ -1297,7 +1297,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Release1.11"
+    currentVersion := "Aurora1.0"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1466,7 +1466,7 @@ MainGui:
     Gui, New, +Resize, Scripter Macro
 
     ; Title label at the top
-    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [RELEASE]
+    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [AURORA]
 
     ; Buttons stacked vertically
     Gui, Add, Button, w180 h40 gShopsGui, Shops

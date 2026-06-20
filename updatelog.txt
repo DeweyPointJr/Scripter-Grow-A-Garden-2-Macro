@@ -1,4 +1,6 @@
-Version Release1.1:
+Version Aurora1.0:
 
-- Added Auto Plant!
-- Added option to change shop X button position
+Additions:
+ - Added Venom Spitter
+ - Added Megaphone
+ - Added Player Magnet
