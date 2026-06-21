@@ -91,12 +91,18 @@ global shopXBtnY
 IniRead, shopXBtnX, %iniFile%, Settings, shopXBtnX, 1370
 IniRead, shopXBtnY, %iniFile%, Settings, shopXBtnY, 240
 
+global seedBtnX
+global seedBtnY
+
+IniRead, seedBtnX, %iniFile%, Settings, seedBtnX, 720
+IniRead, seedBtnY, %iniFile%, Settings, seedBtnY, 120
+
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
                 , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Dragon's Breath"]
 
-global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Lantern", "Shrink Mushroom", "Supersize Mushroom"
-                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Teleporter", "Wheelbarrow", "Player Magnet", "Super Watering Can", "Super Sprinkler"]
+global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Lantern", "Supersize Mushroom", "Shrink Mushroom"
+                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Wheelbarrow", "Player Magnet", "Super Watering Can", "Super Sprinkler"]
 
 global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate", "Conveyor Crate", "Owner Door Crate"
                 , "Bear Trap Crate", "Fence Crate", "Teleporter Pad Crate"]
@@ -1297,7 +1303,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Aurora1.0"
+    currentVersion := "Aurora1.01"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1588,6 +1594,8 @@ SettingsGui:
     Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
 
     Gui, Add, Button, x20 y90 w100 h35 gSetShopXPos, Set Shop X Position
+
+    Gui, Add, Button, x140 y90 w100 h35 gSetSeedPos, Set Seeds Button Position
 
     ; === Reconnect Tab ===
     Gui, Tab, 5
@@ -2148,6 +2156,20 @@ SetShopXPos:
     Gui, Show
 Return
 
+SetSeedPos:
+    MsgBox, 64, Seeds Setup, Click where the Seeds button is located.
+    Gui, Hide
+    ; Wait for left click
+    KeyWait, LButton, D
+    MouseGetPos, seedBtnX, seedBtnY
+    MsgBox, 64, Seeds Setup, Seeds button set at X %seedBtnX% Y %seedBtnY%
+
+    ; Save the location
+    IniWrite, %seedBtnX%, %iniFile%, Settings, seedBtnX
+    IniWrite, %seedBtnY%, %iniFile%, Settings, seedBtnY
+    Gui, Show
+Return
+
 ; Core labels
 CheckForNewTasks:
     FormatTime, curMin,, m
@@ -2253,10 +2275,10 @@ AutoPlantTimer:
 Return
 
 SeedShopLabel:
-    global shopXBtnX, shopXBtnY
+    global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Seeds")
-    ClickRelative(720, 120, 1)
+    ClickRelative(seedBtnX, seedBtnY, 2)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 1000
@@ -2280,10 +2302,10 @@ Return
 
 
 GearShopLabel:
-    global shopXBtnX, shopXBtnY
+    global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Gears")
-    ClickRelative(720, 120, 1)
+    ClickRelative(seedBtnX, seedBtnY, 2)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
@@ -2317,10 +2339,10 @@ GearShopLabel:
 Return
 
 PropsShopLabel:
-    global shopXBtnX, shopXBtnY
+    global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Props")
-    ClickRelative(720, 120, 1)
+    ClickRelative(seedBtnX, seedBtnY, 2)
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
@@ -2355,13 +2377,13 @@ PropsShopLabel:
 Return
 
 AutoAlignCameraLabel:
-    global shopXBtnX, shopXBtnY
+    global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Aligning Camera")
     ClickRelative(shopXBtnX, shopXBtnY, 2)
     Sleep, 1000
 
-    ClickRelative(720, 120, 1)
+    ClickRelative(seedBtnX, seedBtnY, 2)
 
     
     Sleep, 1000
@@ -2382,7 +2404,7 @@ AutoAlignCameraLabel:
     IniRead, AutoAlignCamera, config.ini, Settings, AutoAlignCamera
     if (AutoAlignCamera) {
         Loop, 50 {
-            ClickRelative(720, 120, 1)
+            ClickRelative(seedBtnX, seedBtnY, 2)
             Sleep, 1000
             ClickRelative(938, 494, 1)
             Sleep, 2500

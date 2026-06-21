@@ -1,6 +1,7 @@
-Version Aurora1.0:
+Version Aurora1.01:
 
 Additions:
- - Added Venom Spitter
- - Added Megaphone
- - Added Player Magnet
+ - Added option to change seed shop button position
+
+Bug Fixes:
+ - Removed Teleporter, fixing gear shop
