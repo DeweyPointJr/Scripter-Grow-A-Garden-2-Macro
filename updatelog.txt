@@ -1,4 +1,3 @@
-Version Aurora1.03:
+Version Aurora1.04:
 
-- Added Strawberry Sniper
-- Fixed shops
+- Fixed auto update

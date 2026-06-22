@@ -64,6 +64,94 @@ Hotkey, %StartHotkey%, StartHotkeyLabel
 Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
+; --- Remote global message (version-controlled) ---
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04"]
+global ScriptCurrentVersion := "Aurora1.04"
+global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
+
+ShowGlobalMessage() {
+    global ScriptVersionList, ScriptCurrentVersion, GlobalMessageURL
+
+    cacheFile := A_ScriptDir "\gh_message_cache.txt"
+    txt := ""
+
+    ; Try fetching remote message (graceful failure to cache)
+    try {
+        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", GlobalMessageURL, false)
+        whr.Send()
+        whr.WaitForResponse()
+        if (whr.Status = 200) {
+            txt := whr.ResponseText
+            FileDelete, %cacheFile%
+            FileAppend, %txt%, %cacheFile%
+        }
+    } catch e {
+    }
+
+    if (txt = "") {
+        if FileExist(cacheFile) {
+            FileRead, txt, %cacheFile%
+        } else {
+            return
+        }
+    }
+
+    ; Split into lines and inspect first line for a version marker like "<1.2.0"
+    lines := StrSplit(txt, "`n")
+    first := Trim(lines[1])
+    msgVersion := ""
+    if RegExMatch(first, "<\s*([^>\s]+)", m)
+        msgVersion := m1
+
+    show := false
+    if (msgVersion = "") {
+        show := true
+    } else {
+        idxMsg := 0
+        idxCur := 0
+        for idx, ver in ScriptVersionList {
+            if (ver = msgVersion)
+                idxMsg := idx
+            if (ver = ScriptCurrentVersion)
+                idxCur := idx
+        }
+        if (idxMsg = 0) {
+            show := true ; referenced version not in the list
+        } else if (idxCur = 0) {
+            show := true ; current version not found in list
+        } else if (idxCur < idxMsg) {
+            show := true ; current version is before the message version
+        }
+    }
+
+    if (show) {
+        ; If a version marker was present, show the body (lines after first) if available,
+        ; otherwise fall back to showing the full text so the user isn't presented with a blank box.
+        msgToShow := txt
+        if (msgVersion != "") {
+            ; Rebuild body from remaining lines (handle CRLF)
+            bodyParts := []
+            Loop, % lines.Length() {
+                if (A_Index > 1)
+                    bodyParts.Push( Trim(lines[A_Index]) )
+            }
+            body := ""
+            if (bodyParts.Length() > 0) {
+                for i,part in bodyParts
+                    body .= (i=1 ? "" : "`n") . part
+                body := Trim(body)
+            }
+            if (body != "")
+                msgToShow := body
+        }
+        MsgBox, % msgToShow
+    }
+}
+
+; Show on startup (will use cache if offline)
+ShowGlobalMessage()
+
 ; === Reconnect ===
 global VIP_SERVER_LINK
 global AutoReconnect
@@ -1303,7 +1391,8 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Aurora1.03"
+    global ScriptCurrentVersion
+    currentVersion := ScriptCurrentVersion 
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -1337,7 +1426,7 @@ CheckForUpdate() {
                 return
             }
 
-            whr2 := ComObjCreate("WinHttp.WinHttpR  equest.5.1")
+            whr2 := ComObjCreate("WinHttp.WinHttpRequest.5.1")
             whr2.Open("GET", downloadURL, false)
             whr2.Send()
             whr2.WaitForResponse()
@@ -1379,6 +1468,19 @@ CheckForUpdatedUpdater() {
 
 
 CheckForUpdate()
+
+CheckForGlobalMessage() {
+    url := "https://raw.githubusercontent.com/USERNAME/REPO/BRANCH/message.txt"
+    http := ComObjCreate("MSXML2.XMLHTTP")
+    http.open("GET", url, false)
+    http.send()
+    if (http.status = 200) {
+        MsgBox % http.responseText
+    }
+    else {
+        MsgBox % "Unable to fetch message. HTTP " http.status
+    }
+}
 
 ; Show Gui
 Gosub, MainGui
