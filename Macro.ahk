@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04"]
-global ScriptCurrentVersion := "Aurora1.04"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05"]
+global ScriptCurrentVersion := "Aurora1.05"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -1145,11 +1145,11 @@ BuyFromShop(shopName) {
     }
 
     ; Navigate to the first item in the shop
-    UINavigation("LLDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLDD")
+    UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
     Sleep, 100
     ClickRelative(970, 620, 1)
     Sleep, 1000
-    UINavigation("LLDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLDDE||E", 0, 0)
+    UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
     Sleep, 1000
 
     ; Get shop items and prefix
