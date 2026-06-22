@@ -1,7 +1,3 @@
-Version Aurora1.01:
+Version Aurora1.02:
 
-Additions:
- - Added option to change seed shop button position
-
-Bug Fixes:
- - Removed Teleporter, fixing gear shop
+- Added Strawberry Sniper

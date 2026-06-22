@@ -102,7 +102,7 @@ global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple"
                 , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Dragon's Breath"]
 
 global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Lantern", "Supersize Mushroom", "Shrink Mushroom"
-                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Wheelbarrow", "Player Magnet", "Super Watering Can", "Super Sprinkler"]
+                , "Gnome", "Flashbang", "Basic Pot", "Legendary Sprinkler", "Invisibility Mushroom", "Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
 
 global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate", "Conveyor Crate", "Owner Door Crate"
                 , "Bear Trap Crate", "Fence Crate", "Teleporter Pad Crate"]
@@ -1303,7 +1303,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Aurora1.01"
+    currentVersion := "Aurora1.02"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
