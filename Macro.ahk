@@ -1057,11 +1057,11 @@ BuyFromShop(shopName) {
     }
 
     ; Navigate to the first item in the shop
-    UINavigation("DDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDD")
+    UINavigation("LLDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLDD")
     Sleep, 100
     ClickRelative(970, 620, 1)
     Sleep, 1000
-    UINavigation("DDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDE||E", 0, 0)
+    UINavigation("LLDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLDDE||E", 0, 0)
     Sleep, 1000
 
     ; Get shop items and prefix
@@ -1303,7 +1303,7 @@ SetStatus(status) {
 }
 
 CheckForUpdate() {
-    currentVersion := "Aurora1.02"
+    currentVersion := "Aurora1.03"
     latestURL := "https://api.github.com/repos/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest"
 
     whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
