@@ -1,3 +1,3 @@
-Version Aurora1.06:
+Version Aurora1.07:
 
-- Fixed gear shop items
+- Added Picture Frame Crate
