@@ -1,3 +1,5 @@
-Version Aurora1.07:
+Version Aurora1.08:
 
-- Added Picture Frame Crate
+- Fixed auto align
+- Fixed auto sell
+- Revamped positioning menu

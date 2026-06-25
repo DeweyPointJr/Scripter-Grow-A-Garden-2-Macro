@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07"]
-global ScriptCurrentVersion := "Aurora1.07"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08"]
+global ScriptCurrentVersion := "Aurora1.08"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -164,8 +164,8 @@ IniRead, JoinPublicServer, %iniFile%, Settings, JoinPublicServer, 0
 global backpackBtnX
 global backpackBtnY
 
-IniRead, backpackBtnX, %iniFile%, Settings, backpackBtnX, 296
-IniRead, backpackBtnY, %iniFile%, Settings, backpackBtnY, 53
+IniRead, backpackBtnX, %iniFile%, Settings, backpackBtnX, 199
+IniRead, backpackBtnY, %iniFile%, Settings, backpackBtnY, 54
 
 global fenceBtnX
 global fenceBtnY
@@ -1512,6 +1512,7 @@ MainLoop:
         ; Make sure camera is aligned correctly
         if (lastErrors != ERRORS) {
             lastErrors := ERRORS
+            if !(WaitingForTasks)
             Gosub, AutoAlignCameraLabel
             NeedsAlignment := false
         }
@@ -1691,13 +1692,32 @@ SettingsGui:
 
     ; === Positioning Tab ===
     Gui, Tab, 4
-    Gui, Add, Button, x20 y50 w100 h35 gSetBackpackPos, Set Backpack Button Position
 
-    Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
+    Gui, Add, Button, x20 y48 w18 h18 gInfoBackpackPos, ?
+    Gui, Add, Text, x40 y50 vBackpackText, Backpack: X: %backpackBtnX% Y: %backpackBtnY%
+    Gui, Add, Button, x170 y48 w50 h20 gSetBackpackPos, Change
+    Gui, Add, Button, x225 y48 w50 h20 gResetBackpackPos, Reset
 
-    Gui, Add, Button, x20 y90 w100 h35 gSetShopXPos, Set Shop X Position
+    Gui, Add, Button, x20 y68 w18 h18 gInfoFencePos, ?
+    Gui, Add, Text, x40 y70 vFenceXText, Fence X: X: %fenceBtnX% Y: %fenceBtnY%
+    Gui, Add, Button, x170 y68 w50 h20 gSetFencePos, Change
+    Gui, Add, Button, x225 y68 w50 h20 gResetFencePos, Reset
 
-    Gui, Add, Button, x140 y90 w100 h35 gSetSeedPos, Set Seeds Button Position
+    Gui, Add, Button, x20 y88 w18 h18 gInfoShopXPos, ?
+    Gui, Add, Text, x40 y90 vShopXText, Shop X: X: %shopXBtnX% Y: %shopXBtnY%
+    Gui, Add, Button, x170 y88 w50 h20 gSetShopXPos, Change
+    Gui, Add, Button, x225 y88 w50 h20 gResetShopXPos, Reset
+
+    Gui, Add, Button, x20 y108 w18 h18 gInfoSeedPos, ?
+    Gui, Add, Text, x40 y110 vSeedText, Seeds: X: %seedBtnX% Y: %seedBtnY%
+    Gui, Add, Button, x170 y108 w50 h20 gSetSeedPos, Change
+    Gui, Add, Button, x225 y108 w50 h20 gResetSeedPos, Reset
+
+    ;Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
+
+    ;Gui, Add, Button, x20 y90 w100 h35 gSetShopXPos, Set Shop X Position
+
+   ; Gui, Add, Button, x140 y90 w100 h35 gSetSeedPos, Set Seeds Button Position
 
     ; === Reconnect Tab ===
     Gui, Tab, 5
@@ -1738,6 +1758,50 @@ Return
 
 InfoGardenSize:
     MsgBox, Set this to the number of rows of plots your garden has
+Return
+
+InfoBackpackPos:
+    MsgBox, Set this to where the button to open your backpack is on your screen.
+Return
+
+ResetBackpackPos:
+    global backpackBtnX := 199
+    global backpackBtnY := 54
+
+    GuiControl,, BackpackText, Backpack: X: %backpackBtnX% Y: %backpackBtnY%
+Return
+
+InfoFencePos:
+    MsgBox, Set this to where the button to close the fence skins menu is located on your screen.
+Return
+
+ResetFencePos:
+    global fenceBtnX := 1260
+    global fenceBtnY := 380
+
+    GuiControl,, FenceText, Fence X: X: %fenceBtnX% Y: %fenceBtnY%
+Return
+
+InfoShopXPos:
+    MsgBox, Set this to where the button to close the shops is located on your screen.
+Return
+
+ResetShopXPos:
+    global shopXBtnX := 1370
+    global shopXBtnY := 240
+
+    GuiControl,, ShopXText, Shop X: X: %shopXBtnX% Y: %shopXBtnY%
+Return
+
+InfoSeedPos:
+    MsgBox, Set this to where the button to teleport to the seeds shop is located on your screen.
+Return
+
+ResetSeedPos:
+    global seedBtnX := 720
+    global seedBtnY := 120
+
+    GuiControl,, SeedText, Seeds: X: %seedBtnX% Y: %seedBtnY%
 Return
 
 SaveSettings:
@@ -2227,6 +2291,9 @@ SetBackpackPos:
     ; Save the location
     IniWrite, %backpackBtnX%, %iniFile%, Settings, backpackBtnX
     IniWrite, %backpackBtnY%, %iniFile%, Settings, backpackBtnY
+
+    GuiControl,, BackpackText, Backpack: X: %backpackBtnX% Y: %backpackBtnY%
+
     Gui, Show
 Return
 
@@ -2508,6 +2575,8 @@ AutoAlignCameraLabel:
         Loop, 50 {
             ClickRelative(seedBtnX, seedBtnY, 2)
             Sleep, 1000
+            ClickRelative(seedBtnX, seedBtnY, 2)
+            Sleep, 1000
             ClickRelative(938, 494, 1)
             Sleep, 2500
             if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
@@ -2516,7 +2585,7 @@ AutoAlignCameraLabel:
                 Sleep, 1000
                 break
             } else {
-                RotateCamera(30)
+                RotateCamera(60)
             }
         } 
     }
@@ -2816,7 +2885,7 @@ AutoSellPlantsLabel:
     Sleep, 2500
     Send, {E}
     Sleep, 3000
-    ClickRelative(1430, 420, 1)
+    ClickRelative(1503, 494, 1)
     Sleep, 3000
 Return
 
