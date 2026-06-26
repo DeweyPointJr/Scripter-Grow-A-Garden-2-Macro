@@ -1,5 +1,4 @@
-Version Aurora1.08:
+Version Aurora1.09:
 
 - Fixed auto align
-- Fixed auto sell
-- Revamped positioning menu
+- Improved positioning

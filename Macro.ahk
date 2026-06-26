@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08"]
-global ScriptCurrentVersion := "Aurora1.08"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09"]
+global ScriptCurrentVersion := "Aurora1.09"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -185,6 +185,112 @@ global seedBtnY
 IniRead, seedBtnX, %iniFile%, Settings, seedBtnX, 720
 IniRead, seedBtnY, %iniFile%, Settings, seedBtnY, 120
 
+; POSITIONING TABLES
+global xPos := Object()
+global yPos := Object()
+
+global xPosDefault := Object()
+global yPosDefault := Object()
+
+global posText := Object()
+global posName := Object()
+
+UpdatePositioningTables() {
+    global xPos, yPos, xPosDefault, yPosDefault
+
+    ; - Positions -
+    xPos["backpack"] := backpackBtnX
+    xPos["fenceX"] := fenceBtnX
+    xPos["shopX"] := shopXBtnX
+    xPos["seeds"] := seedBtnX
+
+    yPos["backpack"] := backpackBtnY
+    yPos["fenceX"] := fenceBtnY
+    yPos["shopX"] := shopXBtnY
+    yPos["seeds"] := seedBtnY
+
+    ; - Defaults -
+    xPosDefault["backpack"] := 199
+    yPosDefault["backpack"] := 54 
+
+    xPosDefault["fenceX"] := 1260
+    yPosDefault["fenceX"] := 380
+
+    xPosDefault["shopX"] := 1370
+    yPosDefault["shopX"] := 240
+
+    xPosDefault["seeds"] := 720
+    yPosDefault["seeds"] := 120
+}
+
+UpdatePositioningTables()
+
+ClickButton(button, noDelay := 0) {
+    global RobloxWindow, xPos, yPos, xPosDefault, yPosDefault
+    CoordMode, Window
+
+    ; Ensure RobloxWindow is valid
+    if !RobloxWindow || !WinExist("ahk_id " . RobloxWindow) {
+        WinGet, RobloxWindow, ID, ahk_exe RobloxPlayerBeta.exe
+        if !RobloxWindow {
+            SetStatus("Roblox window not found!")
+            CheckRobloxStatusFunc()
+            return
+        }
+    }
+
+    ; Activate & restore window
+    WinActivate, ahk_id %RobloxWindow%
+    WinWaitActive, ahk_id %RobloxWindow%, , 2
+    WinGet, winState, MinMax, ahk_id %RobloxWindow%
+    if (winState = -1) {
+        ; Window is minimized, restore it
+        WinRestore, ahk_id %RobloxWindow%
+    }
+
+    WinActivate, ahk_id %RobloxWindow%
+    WinWaitActive, ahk_id %RobloxWindow%, , 2
+
+
+    ; Get window position
+    WinGetPos, X, Y, W, H, ahk_id %RobloxWindow%
+    if (ErrorLevel || W = 0 || H = 0) {
+        return
+    }
+
+    ; Detect if the button is at the default position or not
+    coord := 0
+    if (xPos[button] == xPosDefault[button]) && (yPos[button] == yPosDefault[button]) {
+        coord := 1
+    } else {
+        coord := 2
+    }
+
+    ; Calculate click coordinates
+    if  (coord = 1) {
+        clickX := Round(X + (xPos[button] / 1936) * W)
+        clickY := Round(Y + (yPos[button] / 1056) * H)
+    } else if (coord = 2) {
+        clickX := xPos[button]
+        clickY := yPos[button]
+    } else {
+        clickX := Round(X + (W * xPos[button]))
+        clickY := Round(Y + (H * yPos[button]))
+    }
+
+    oldMode := A_SendMode
+    
+
+    if (noDelay = 0) {
+        SendMode Event
+        MouseMove, %clickX%, %clickY%, 3
+    }
+    Sleep, 10
+    Click, %clickX%, %clickY%
+
+    SendMode %oldMode%
+}
+
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
                 , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Dragon's Breath"]
@@ -257,7 +363,6 @@ ClickRelative(relX, relY, coord := 0, noDelay := 0) {
     } else {
         clickX := Round(X + (W * relX))
         clickY := Round(Y + (H * relY))
-        clickY += 3
     }
 
     oldMode := A_SendMode
@@ -1223,7 +1328,7 @@ BuyFromShop(shopName) {
     ; Exit shop
     UINavigation("", 1, 1)
     Sleep, 1000 
-    ClickRelative(shopXBtnX, shopXBtnY, 2)
+    ClickButton("shopX")
     Sleep, 1000
 
     ; Confirm Roblox window still exists
@@ -1713,12 +1818,6 @@ SettingsGui:
     Gui, Add, Button, x170 y108 w50 h20 gSetSeedPos, Change
     Gui, Add, Button, x225 y108 w50 h20 gResetSeedPos, Reset
 
-    ;Gui, Add, Button, x140 y50 w100 h35 gSetFencePos, Set Fence X Position
-
-    ;Gui, Add, Button, x20 y90 w100 h35 gSetShopXPos, Set Shop X Position
-
-   ; Gui, Add, Button, x140 y90 w100 h35 gSetSeedPos, Set Seeds Button Position
-
     ; === Reconnect Tab ===
     Gui, Tab, 5
     Gui, Add, Text, x20 y40 w150, VIP Server Link:
@@ -1768,6 +1867,11 @@ ResetBackpackPos:
     global backpackBtnX := 199
     global backpackBtnY := 54
 
+    IniWrite, %backpackBtnX%, %iniFile%, Settings, backpackBtnX
+    IniWrite, %backpackBtnY%, %iniFile%, Settings, backpackBtnY
+
+    UpdatePositioningTables()
+
     GuiControl,, BackpackText, Backpack: X: %backpackBtnX% Y: %backpackBtnY%
 Return
 
@@ -1778,6 +1882,11 @@ Return
 ResetFencePos:
     global fenceBtnX := 1260
     global fenceBtnY := 380
+
+    IniWrite, %fenceBtnX%, %iniFile%, Settings, fenceBtnX
+    IniWrite, %fenceBtnY%, %iniFile%, Settings, fenceBtnY
+
+    UpdatePositioningTables()
 
     GuiControl,, FenceText, Fence X: X: %fenceBtnX% Y: %fenceBtnY%
 Return
@@ -1790,6 +1899,11 @@ ResetShopXPos:
     global shopXBtnX := 1370
     global shopXBtnY := 240
 
+    IniWrite, %shopXBtnX%, %iniFile%, Settings, shopXBtnX
+    IniWrite, %shopXBtnY%, %iniFile%, Settings, shopXBtnY
+
+    UpdatePositioningTables()
+
     GuiControl,, ShopXText, Shop X: X: %shopXBtnX% Y: %shopXBtnY%
 Return
 
@@ -1800,6 +1914,11 @@ Return
 ResetSeedPos:
     global seedBtnX := 720
     global seedBtnY := 120
+
+    IniWrite, %seedBtnX%, %iniFile%, Settings, seedBtnX
+    IniWrite, %seedBtnY%, %iniFile%, Settings, seedBtnY
+
+    UpdatePositioningTables()
 
     GuiControl,, SeedText, Seeds: X: %seedBtnX% Y: %seedBtnY%
 Return
@@ -2294,6 +2413,7 @@ SetBackpackPos:
 
     GuiControl,, BackpackText, Backpack: X: %backpackBtnX% Y: %backpackBtnY%
 
+UpdatePositioningTables()
     Gui, Show
 Return
 
@@ -2308,6 +2428,10 @@ SetFencePos:
     ; Save the location
     IniWrite, %fenceBtnX%, %iniFile%, Settings, fenceBtnX
     IniWrite, %fenceBtnY%, %iniFile%, Settings, fenceBtnY
+
+    GuiControl,, FenceText, Fence X: X: %fenceBtnX% Y: %fenceBtnY%
+
+    UpdatePositioningTables()
     Gui, Show
 Return
 
@@ -2322,6 +2446,10 @@ SetShopXPos:
     ; Save the location
     IniWrite, %shopXBtnX%, %iniFile%, Settings, shopXBtnX
     IniWrite, %shopXBtnY%, %iniFile%, Settings, shopXBtnY
+
+    GuiControl,, ShopXText, Shop X: X: %shopXBtnX% Y: %shopXBtnY%
+
+    UpdatePositioningTables()
     Gui, Show
 Return
 
@@ -2336,6 +2464,10 @@ SetSeedPos:
     ; Save the location
     IniWrite, %seedBtnX%, %iniFile%, Settings, seedBtnX
     IniWrite, %seedBtnY%, %iniFile%, Settings, seedBtnY
+
+    GuiControl,, SeedText, Seeds: X: %seedBtnX% Y: %seedBtnY%
+
+    UpdatePositioningTables()
     Gui, Show
 Return
 
@@ -2447,7 +2579,7 @@ SeedShopLabel:
     global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Seeds")
-    ClickRelative(seedBtnX, seedBtnY, 2)
+    ClickButton("seeds")
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 1000
@@ -2459,7 +2591,7 @@ SeedShopLabel:
         BuyFromShop("Seeds")
         SetStatus("Seeds Completed")
         Sleep, 1000
-        ClickRelative(shopXBtnX, shopXBtnY, 2)
+        ClickButton("shopX")
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2474,12 +2606,12 @@ GearShopLabel:
     global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Gears")
-    ClickRelative(seedBtnX, seedBtnY, 2)
+    ClickButton("seeds")
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
-        ClickRelative(shopXBtnX, shopXBtnY, 2)
+        ClickButton("shopX")
         Sleep, 1000
         Walk("s", 12)
         Send, {a}
@@ -2497,7 +2629,7 @@ GearShopLabel:
         BuyFromShop("Gears")
         SetStatus("Gear Completed")
         Sleep, 1000
-        ClickRelative(shopXBtnX, shopXBtnY, 2)
+        ClickButton("shopX")
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2511,13 +2643,13 @@ PropsShopLabel:
     global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Buying Props")
-    ClickRelative(seedBtnX, seedBtnY, 2)
+    ClickButton("seeds")
     Sleep, 1000
     ClickRelative(0.5, 0.5)
     Sleep, 2500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         global NeedsAlignment := true
-        ClickRelative(shopXBtnX, shopXBtnY, 2)
+        ClickButton("shopX")
         Sleep, 1000
         Walk("s", 34)
         Send, {a}
@@ -2535,7 +2667,7 @@ PropsShopLabel:
         BuyFromShop("Props")
         SetStatus("Props Completed")
         Sleep, 1000
-        ClickRelative(shopXBtnX, shopXBtnY, 2)
+        ClickButton("shopX")
         Sleep, 1000
         CloseRobuxPrompt()
     } else {
@@ -2549,13 +2681,16 @@ AutoAlignCameraLabel:
     global shopXBtnX, shopXBtnY, seedBtnX, seedBtnY
 
     SetStatus("Aligning Camera")
-    ClickRelative(shopXBtnX, shopXBtnY, 2)
-    Sleep, 1000
 
-    ClickRelative(seedBtnX, seedBtnY, 2)
-
+    Walk("o", 2500, 500, 0)
+    
+    ClickButton("shopX")
     
     Sleep, 1000
+
+    ClickButton("shopX")
+
+    
 
     ; First zoom alignment
     Loop, 25 {
@@ -2573,14 +2708,14 @@ AutoAlignCameraLabel:
     IniRead, AutoAlignCamera, config.ini, Settings, AutoAlignCamera
     if (AutoAlignCamera) {
         Loop, 50 {
-            ClickRelative(seedBtnX, seedBtnY, 2)
+            ClickButton("seeds")
             Sleep, 1000
-            ClickRelative(seedBtnX, seedBtnY, 2)
+            ClickButton("seeds")
             Sleep, 1000
             ClickRelative(938, 494, 1)
             Sleep, 2500
             if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
-                ClickRelative(shopXBtnX, shopXBtnY, 2)
+                ClickButton("shopX")
                 SetStatus("Camera Aligned Correctly")
                 Sleep, 1000
                 break
@@ -2715,15 +2850,15 @@ AutoHarvestLabel:
     Walk("w", 13)
     Walk("d", 9)
     Harvest()
-    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
+    ClickButton("fenceX")
 
     Walk("d", 21)
     Harvest()
-    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
+    ClickButton("fenceX")
     
     Walk("d", 24)
     Harvest()
-    ClickRelative(%fenceBtnX%, %fenceBtnY%, 1)
+    ClickButton("fenceX")
 
     Walk("w", 12)
     Walk("a", 1)
@@ -2890,8 +3025,5 @@ AutoSellPlantsLabel:
 Return
 
 F6::
-global shopXBtnX
-global shopXBtnY
-MsgBox, %shopXBtnX% y %shopXBtnY%
-ClickRelative(shopXBtnX, shopXBtnY, 2)
+ClickButton("seeds")
 Return
