@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09"]
-global ScriptCurrentVersion := "Aurora1.09"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0"]
+global ScriptCurrentVersion := "Auctioneer1.0"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -151,6 +151,16 @@ ShowGlobalMessage() {
 
 ; Show on startup (will use cache if offline)
 ShowGlobalMessage()
+
+; If a summary was saved by a Stop hotkey before reload, show it now
+awayFile := A_ScriptDir "\away_summary.txt"
+if FileExist(awayFile) {
+    FileRead, awaySummary, %awayFile%
+    FileDelete, %awayFile%
+    if (awaySummary != "") {
+        MsgBox,, Scripter Macro, %awaySummary%
+    }
+}
 
 ; === Reconnect ===
 global VIP_SERVER_LINK
@@ -293,10 +303,10 @@ ClickButton(button, noDelay := 0) {
 
 ; ITEMS
 global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
-                , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Dragon's Breath"]
+                , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Hypno Bloom", "Dragon's Breath"]
 
-global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Supersize Mushroom", "Shrink Mushroom"
-                , "Gnome", "Basic Pot", "Flashbang", "Invisibility Mushroom", "Legendary Sprinkler","Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
+global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Shrink Mushroom", "Supersize Mushroom"
+                , "Gnome", "Flashbang", "Basic Pot", "Invisibility Mushroom", "Legendary Sprinkler","Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
 
 global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Picture Frame Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate", "Conveyor Crate", "Owner Door Crate"
                 , "Bear Trap Crate", "Fence Crate", "Teleporter Pad Crate"]
@@ -1250,11 +1260,19 @@ BuyFromShop(shopName) {
     }
 
     ; Navigate to the first item in the shop
-    UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
-    Sleep, 100
-    ClickRelative(970, 620, 1)
-    Sleep, 1000
-    UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
+    if (shopName != "Props") {
+        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
+        Sleep, 100
+        ClickRelative(970, 620, 1)
+        Sleep, 1000
+        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
+    } else {
+        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDD")
+        Sleep, 100
+        ClickRelative(970, 620, 1)
+        Sleep, 1000
+        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDDE||E", 0, 0) 
+    }
     Sleep, 1000
 
     ; Get shop items and prefix
@@ -1495,6 +1513,15 @@ SetStatus(status) {
     SetTimer, ClearTooltip, -1500
 }
 
+GetVersionIndex(version) {
+    global ScriptVersionList
+    for idx, ver in ScriptVersionList {
+        if (ver = version)
+            return idx
+    }
+    return ""
+}
+
 CheckForUpdate() {
     global ScriptCurrentVersion
     currentVersion := ScriptCurrentVersion 
@@ -1520,42 +1547,53 @@ CheckForUpdate() {
         return
     }
 
-    if (latestVersion != currentVersion) {
-        MsgBox, 4, Update Available, New version %latestVersion% found! Download and install?
-        IfMsgBox, Yes
-        {
-            RegExMatch(json, """zipball_url"":\s*""([^""]+)""", d)
-            downloadURL := d1
-            if (downloadURL = "") {
-                MsgBox, Could not find zipball_url in release JSON.
-                return
-            }
+    currentIndex := GetVersionIndex(currentVersion)
+    latestIndex := GetVersionIndex(latestVersion)
 
-            whr2 := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-            whr2.Open("GET", downloadURL, false)
-            whr2.Send()
-            whr2.WaitForResponse()
-            status2 := whr2.Status + 0
-
-            if (status2 != 200) {
-                MsgBox, Failed to download update file. Status: %status2%
-                return
-            }
-
-            stream := ComObjCreate("ADODB.Stream")
-            stream.Type := 1 ; binary
-            stream.Open()
-            stream.Write(whr2.ResponseBody)
-            stream.SaveToFile(A_ScriptDir "\update.zip", 2)
-            stream.Close()
-
-            ; Extract the update
-            RunWait, %ComSpec% /c powershell -Command "Expand-Archive -Force '%A_ScriptDir%\update.zip' '%A_ScriptDir%'",, Hide
-
-            ; Run updater (it will handle the log and file moves)
-            Run, %A_ScriptDir%\Submacros\update.ahk
-            ExitApp
+    if (currentIndex != "" && latestIndex != "") {
+        if (currentIndex >= latestIndex) {
+            CheckForUpdatedUpdater()
+            return
         }
+    } else if (latestVersion = currentVersion) {
+        CheckForUpdatedUpdater()
+        return
+    }
+
+    MsgBox, 4, Update Available, New version %latestVersion% found! Download and install?
+    IfMsgBox, Yes 
+    {
+        RegExMatch(json, """zipball_url"":\s*""([^""]+)""", d)
+        downloadURL := d1
+        if (downloadURL = "") {
+            MsgBox, Could not find zipball_url in release JSON.
+            return
+        }
+
+        whr2 := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr2.Open("GET", downloadURL, false)
+        whr2.Send()
+        whr2.WaitForResponse()
+        status2 := whr2.Status + 0
+
+        if (status2 != 200) {
+            MsgBox, Failed to download update file. Status: %status2%
+            return
+        }
+
+        stream := ComObjCreate("ADODB.Stream")
+        stream.Type := 1 ; binary
+        stream.Open()
+        stream.Write(whr2.ResponseBody)
+        stream.SaveToFile(A_ScriptDir "\update.zip", 2)
+        stream.Close()
+
+        ; Extract the update
+        RunWait, %ComSpec% /c powershell -Command "Expand-Archive -Force '%A_ScriptDir%\update.zip' '%A_ScriptDir%'",, Hide
+
+        ; Run updater (it will handle the log and file moves)
+        Run, %A_ScriptDir%\Submacros\update.ahk
+        ExitApp
     } else {
         ; On startup, check if update.ahk has a pending replacement
         CheckForUpdatedUpdater()
@@ -1680,7 +1718,7 @@ MainGui:
     Gui, New, +Resize, Scripter Macro
 
     ; Title label at the top
-    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [AURORA]
+    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [AUCTIONEER]
 
     ; Buttons stacked vertically
     Gui, Add, Button, w180 h40 gShopsGui, Shops
@@ -2374,10 +2412,10 @@ PauseHotkeyLabel() {
 }
 
 StopHotkeyLabel() {
-    ; While you were away
-    global MacroStarted
+    ; Save summary and reload so the popup appears after restart
+    global BoughtListAll
+
     if (MacroStarted) {
-        global BoughtListAll
 
         summary := "While you were away:`r`n`r`n"
         wrote := 0
@@ -2388,14 +2426,19 @@ StopHotkeyLabel() {
             }
         }
 
-        if (wrote = 0) {
+        if (wrote = 0)
             summary := "No purchases while you were away"
-        }
 
-        MsgBox,, Scripter Macro, %summary%
-        
+        awayFile := A_ScriptDir "\away_summary.txt"
+        FileDelete, %awayFile%
+        FileAppend, %summary%, %awayFile%
     }
-    Reload
+    Sleep, 150
+
+    debugFile := A_ScriptDir "\reload_debug.txt"
+    FileAppend, %A_Now% " - StopHotkey triggered, launching new instance`r`n", %debugFile%
+    Run, %A_ScriptFullPath%
+    ExitApp
 }
 
 ; Positioning Labels
@@ -2613,7 +2656,7 @@ GearShopLabel:
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         ClickButton("shopX")
         Sleep, 1000
-        Walk("s", 12)
+        Walk("s", 24)
         Send, {a}
         Walk("a", 15)
     } else {
@@ -2651,9 +2694,7 @@ PropsShopLabel:
         global NeedsAlignment := true
         ClickButton("shopX")
         Sleep, 1000
-        Walk("s", 34)
-        Send, {a}
-        Walk("a", 9)
+        Walk("s", 45)
     } else {
         SetStatus("Alignment Incorrect")
         AddTask("PropsShopLabel", 1)

@@ -1,4 +1,9 @@
-Version Aurora1.09:
+Version Auctioneer1.0
 
-- Fixed auto align
-- Improved positioning
+Additions:
+ - Added Hypno Bloom
+
+Bug Fixes:
+ - Fixed gear and prop shop paths
+ - Fixed gear shop item order
+ - Fixed macro running while purchase summary is showing 
