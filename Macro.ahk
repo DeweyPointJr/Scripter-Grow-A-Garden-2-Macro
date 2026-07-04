@@ -1,5 +1,5 @@
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-; #Warn  ; Enable warnings to assist with detecting common errors.
+; #Warn  ; Enable warnings to assist with detecting common ooe.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0"]
-global ScriptCurrentVersion := "Auctioneer1.0"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0", "July4th1.0"]
+global ScriptCurrentVersion := "July4th1.0"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -302,14 +302,14 @@ ClickButton(button, noDelay := 0) {
 }
 
 ; ITEMS
-global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Dragon Fruit"
-                , "Acorn", "Cherry", "Sunflower", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Hypno Bloom", "Dragon's Breath"]
+global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Rocket Pop"
+                , "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Fire Fern", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Hypno Bloom", "Dragon's Breath"]
 
 global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Shrink Mushroom", "Supersize Mushroom"
                 , "Gnome", "Flashbang", "Basic Pot", "Invisibility Mushroom", "Legendary Sprinkler","Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
 
-global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Picture Frame Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate", "Conveyor Crate", "Owner Door Crate"
-                , "Bear Trap Crate", "Fence Crate", "Teleporter Pad Crate"]
+global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Picture Frame Crate", "Fourth of July Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate"
+                , "Conveyor Crate", "Owner Door Crate", "Bear Trap Crate", "Boombox Crate", "Fence Crate", "Teleporter Pad Crate"]
 
 
 ; SHOPS
@@ -1261,17 +1261,17 @@ BuyFromShop(shopName) {
 
     ; Navigate to the first item in the shop
     if (shopName != "Props") {
-        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
         Sleep, 100
         ClickRelative(970, 620, 1)
         Sleep, 1000
-        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
     } else {
-        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDD")
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDD")
         Sleep, 100
         ClickRelative(970, 620, 1)
         Sleep, 1000
-        UINavigation("LLLRUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDDE||E", 0, 0) 
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDDE||E", 0, 0) 
     }
     Sleep, 1000
 
@@ -1718,7 +1718,7 @@ MainGui:
     Gui, New, +Resize, Scripter Macro
 
     ; Title label at the top
-    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [AUCTIONEER]
+    Gui, Add, Text, w180 h30 Center vTitleText, Scripter Grow A Garden 2 Macro [JULY 4TH]
 
     ; Buttons stacked vertically
     Gui, Add, Button, w180 h40 gShopsGui, Shops
@@ -2656,7 +2656,7 @@ GearShopLabel:
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         ClickButton("shopX")
         Sleep, 1000
-        Walk("s", 24)
+        Walk("s", 28)
         Send, {a}
         Walk("a", 15)
     } else {

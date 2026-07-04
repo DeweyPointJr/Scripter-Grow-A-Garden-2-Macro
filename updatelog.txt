@@ -1,9 +1,9 @@
-Version Auctioneer1.0
+Version July4th1.0
 
 Additions:
- - Added Hypno Bloom
+ - Added Rocket Pop
+ - Added Fire Fern
+ - Added Fourth of July Crate
+ - Added Boombox Crate
 
-Bug Fixes:
- - Fixed gear and prop shop paths
- - Fixed gear shop item order
- - Fixed macro running while purchase summary is showing 
+Please make sure to readjust your seeds and props accordingly!
