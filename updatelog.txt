@@ -1,9 +1,5 @@
-Version July4th1.0
+Version July4th1.01
 
-Additions:
- - Added Rocket Pop
- - Added Fire Fern
- - Added Fourth of July Crate
- - Added Boombox Crate
-
-Please make sure to readjust your seeds and props accordingly!
+Changes:
+ - Removed Rocket Pop
+ - Removed Fourth of July Crate

@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0", "July4th1.0"]
-global ScriptCurrentVersion := "July4th1.0"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0", "July4th1.0", "July4th1.01"]
+global ScriptCurrentVersion := "July4th1.01"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -302,13 +302,13 @@ ClickButton(button, noDelay := 0) {
 }
 
 ; ITEMS
-global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Rocket Pop"
+global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango"
                 , "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Fire Fern", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Hypno Bloom", "Dragon's Breath"]
 
 global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Shrink Mushroom", "Supersize Mushroom"
                 , "Gnome", "Flashbang", "Basic Pot", "Invisibility Mushroom", "Legendary Sprinkler","Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
 
-global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Picture Frame Crate", "Fourth of July Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate"
+global props := ["Ladder Crate", "Bench Crate", "Light Crate", "Sign Crate", "Arch Crate", "Roleplay Crate", "Picture Frame Crate", "Bridge Crate", "Spring Crate", "Seesaw Crate"
                 , "Conveyor Crate", "Owner Door Crate", "Bear Trap Crate", "Boombox Crate", "Fence Crate", "Teleporter Pad Crate"]
 
 
@@ -1261,17 +1261,25 @@ BuyFromShop(shopName) {
 
     ; Navigate to the first item in the shop
     if (shopName != "Props") {
-        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDD")
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLRDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUURDD")
         Sleep, 100
         ClickRelative(970, 620, 1)
         Sleep, 1000
-        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUDDE||E", 0, 0)
+        Loop, 50 {
+            Send, {WheelUp}
+        }
+        Sleep, 500
+        UINavigation("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLRDDE||E", 0, 0) 
     } else {
-        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDD")
+        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLRDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULRDD")
         Sleep, 100
         ClickRelative(970, 620, 1)
         Sleep, 1000
-        UINavigation("LLLRUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLLRUUUUUULDDE||E", 0, 0) 
+        Loop, 50 {
+            Send, {WheelUp}
+        }
+        Sleep, 500
+        UINavigation("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUULLRDDE||E", 0, 0) 
     }
     Sleep, 1000
 
@@ -1809,7 +1817,7 @@ SettingsGui:
 
     Gui, Add, Button, x20 y200 w18 h18 gInfoGardenSize, ?
     Gui, Add, Text, x40 y200, Garden Size:
-    Gui, Add, DropDownList, vGardenSize x105 y198 w35, 1|2|3|4|5
+    Gui, Add, DropDownList, vGardenSize x105 y198 w35, 1|2|3|4|5|6
     GuiControl, ChooseString, GardenSize, %GardenSize%
 
     ; === Roblox Tab ===
@@ -2652,7 +2660,7 @@ GearShopLabel:
     ClickButton("seeds")
     Sleep, 1000
     ClickRelative(0.5, 0.5)
-    Sleep, 2500
+    Sleep, 3500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         ClickButton("shopX")
         Sleep, 1000
@@ -2689,7 +2697,7 @@ PropsShopLabel:
     ClickButton("seeds")
     Sleep, 1000
     ClickRelative(0.5, 0.5)
-    Sleep, 2500
+    Sleep, 3500
     if (PixelColorFound(0x67D147, 514, 200, 1420, 300, 10)) || (PixelColorFound(0x979794, 627, 175, 1277, 215, 5)) {
         global NeedsAlignment := true
         ClickButton("shopX")
@@ -2754,13 +2762,15 @@ AutoAlignCameraLabel:
             ClickButton("seeds")
             Sleep, 1000
             ClickRelative(938, 494, 1)
-            Sleep, 2500
+            Sleep, 3500
             if PixelColorFound(0x67D147, 514, 200, 1420, 300, 10) {
                 ClickButton("shopX")
                 SetStatus("Camera Aligned Correctly")
                 Sleep, 1000
                 break
             } else {
+                ClickButton("shopX")
+                Sleep, 1000
                 RotateCamera(60)
             }
         } 
