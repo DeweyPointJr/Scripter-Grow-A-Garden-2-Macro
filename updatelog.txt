@@ -1,4 +1,4 @@
-Version July4th1.1
+Version July4th1.11
 
 Additions:
  - Added Sun Bloom
