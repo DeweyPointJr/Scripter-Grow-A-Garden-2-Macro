@@ -1,5 +1,5 @@
-Version July4th1.01
+Version July4th1.1
 
-Changes:
- - Removed Rocket Pop
- - Removed Fourth of July Crate
+Additions:
+ - Added Sun Bloom
+ - Added Star Fruit

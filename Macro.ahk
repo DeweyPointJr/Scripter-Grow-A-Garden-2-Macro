@@ -65,8 +65,8 @@ Hotkey, %PauseHotkey%, PauseHotkeyLabel
 Hotkey, %StopHotkey%, StopHotkeyLabel
 
 ; --- Remote global message (version-controlled) ---
-global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0", "July4th1.0", "July4th1.01"]
-global ScriptCurrentVersion := "July4th1.01"
+global ScriptVersionList := ["Release1.0", "Release1.01", "Release1.02", "Release1.03", "Release1.04", "Release1.05", "Release1.1", "Release1.11", "Aurora1.0", "Aurora1.01", "Aurora1.02", "Aurora1.03", "Aurora1.04", "Aurora1.05", "Aurora1.06", "Aurora1.07", "Aurora1.08", "Aurora1.09", "Auctioneer1.0", "July4th1.0", "July4th1.01", "July4th1.1"]
+global ScriptCurrentVersion := "July4th1.1"
 global GlobalMessageURL := "https://raw.githubusercontent.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/main/message.txt" ; replace
 
 ShowGlobalMessage() {
@@ -302,8 +302,9 @@ ClickButton(button, noDelay := 0) {
 }
 
 ; ITEMS
-global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango"
-                , "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Fire Fern", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Hypno Bloom", "Dragon's Breath"]
+global seeds := ["Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Bamboo", "Corn", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", "Coconut", "Mango", "Rocket Pop"
+                , "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Fire Fern", "Venus Fly Trap", "Pomegranate", "Posion Apple", "Venom Spitter", "Moon Bloom", "Sun Bloom", "Hypno Bloom"
+                , "Dragon's Breath", "Star Fruit"]
 
 global gears := ["Common Watering Can", "Common Sprinkler", "Sign", "Uncommon Sprinkler", "Trowel", "Rare Sprinkler", "Jump Mushroom", "Speed Mushroom", "Megaphone", "Shrink Mushroom", "Supersize Mushroom"
                 , "Gnome", "Flashbang", "Basic Pot", "Invisibility Mushroom", "Legendary Sprinkler","Wheelbarrow", "Player Magnet", "Strawberry Sniper", "Super Watering Can", "Super Sprinkler"]
