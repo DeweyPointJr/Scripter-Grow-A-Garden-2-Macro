@@ -1,2 +1,2 @@
-<Aurora1.04
-IF THERE IS AN ERROR DURING AUTO UPDATE, PLEASE REINSTALL TO FIX IT! GO TO https://github.com/DeweyPointJr/Scripter-Grow-A-Garden-2-Macro/releases/latest!
+<July4th1.5
+Hey, just a heads-up, I will be gone until Saturday. If the game updates between now and then, I will not be able to update the macro. Sorry for the inconvenience! If the game does update, you can temporarily set up a TinyTask macro to purchase items for you.
